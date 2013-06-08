@@ -14,14 +14,14 @@ public class POIDBCreateHelper extends SQLiteOpenHelper {
 
     private static final String DICTIONARY_TABLE_CREATE =
             "CREATE TABLE " + POIDBContentProvider.TABLE_NAME + " (" +
-                    POIDBContentProvider.KEY_LAT + " INTEGER, " +
-                    POIDBContentProvider.KEY_LON + " INTEGER," +
-                    POIDBContentProvider.KEY_ALTITUDE + " INTEGER," +
-                    POIDBContentProvider.KEY_NAME + " TEXT," +
-                    POIDBContentProvider.KEY_RADIUS + " TEXT," +
-                    POIDBContentProvider.KEY_DESCRIPTION + " TEXT," +
-                    POIDBContentProvider.KEY_CREATED + " CREATOR," +
-                    POIDBContentProvider.KEY_TYPE + " TYPE);";
+                    POIDBContentProvider.KEY_LAT + " INTEGER NOT NULL, " +
+                    POIDBContentProvider.KEY_LON + " INTEGER NOT NULL, " +
+                    POIDBContentProvider.KEY_ALTITUDE + " INTEGER, " +
+                    POIDBContentProvider.KEY_NAME + " TEXT, " +
+                    POIDBContentProvider.KEY_RADIUS + " TEXT, " +
+                    POIDBContentProvider.KEY_DESCRIPTION + " TEXT, " +
+                    POIDBContentProvider.KEY_CREATED + " TEXT NOT NULL, " +
+                    POIDBContentProvider.KEY_TYPE + " TEXT NOT NULL);";
 
     POIDBCreateHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
