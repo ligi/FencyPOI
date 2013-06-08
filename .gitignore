@@ -2,6 +2,7 @@ FencyPOI/build
 gradle/
 gradlew
 gradlew.bat
+local.properties
 .gradle/
 .build
 .idea
