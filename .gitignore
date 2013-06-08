@@ -1,0 +1,9 @@
+FencyPOI/build
+gradle/
+gradlew
+gradlew.bat
+.gradle/
+.build
+.idea
+*.iml
+FancyPOI/*.iml
