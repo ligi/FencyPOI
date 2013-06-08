@@ -1,9 +1,11 @@
 package org.battlehack.fencypoi;
 
+import android.content.ContentValues;
 import android.location.Location;
 import android.os.Bundle;
 import android.app.Activity;
 import android.view.Menu;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -19,6 +21,7 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
 
     private LocationClient locationclient;
     private TextView locationEditText;
+    private Location lastLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +35,27 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
         setupSpinner();
 
         locationEditText=(TextView) findViewById(R.id.location_edittext);
+
+        findViewById(R.id.addButton).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                add();
+            }
+        });
+    }
+
+    public void add() {
+        ContentValues mNewValues = new ContentValues();
+
+        if (lastLocation!=null) {
+            mNewValues.put(POIDBContentProvider.KEY_LAT,lastLocation.getLatitude());
+            mNewValues.put(POIDBContentProvider.KEY_LON,lastLocation.getLongitude());
+        }
+
+       // mNewValues.put();
+
+        getContentResolver().insert(POIDBContentProvider.CONTENT_URI,mNewValues);
+
     }
 
     private void setupSpinner() {
@@ -73,6 +97,7 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
 
     @Override
     public void onLocationChanged(Location location) {
+        lastLocation=location;
         locationEditText.setText("lat:"+location.getLatitude() + " lon:"+location.getLongitude() + " accuracy: " + location.getAccuracy());
     }
 }
