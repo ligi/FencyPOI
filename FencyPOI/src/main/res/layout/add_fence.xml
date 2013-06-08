@@ -3,7 +3,10 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:orientation="vertical"
               android:layout_width="match_parent"
-              android:layout_height="match_parent">
+              android:layout_height="match_parent"
+              android:background="@drawable/background"
+
+        >
 
     <TextView
             android:text="Name"
@@ -66,4 +69,10 @@
             android:layout_height="match_parent"/>
     -->
 
+    <fragment
+            class="org.battlehack.fencypoi.PoiListFragment"
+            android:tag="list"
+            android:layout_width="fill_parent"
+            android:layout_height="100dp"
+            />
 </LinearLayout>
