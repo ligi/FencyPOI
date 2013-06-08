@@ -22,7 +22,8 @@ public class POIDBContentProvider extends ContentProvider {
     public static final String KEY_RADIUS = "RADIUS";
     public static final String KEY_ALTITUDE = "ALTITUDE";
     public static final String KEY_DESCRIPTION = "DESCRIPTION";
-    public static final String KEY_CREATED = "CREATED";
+    public static final String KEY_CREATOR = "CREATOR";
+    public static final String KEY_CREATED_AT = "CREATED_AT";
     public static final String KEY_TYPE = "TYPE";
     private POIDBCreateHelper helper;
 
@@ -39,7 +40,7 @@ public class POIDBContentProvider extends ContentProvider {
 
     @Override
     public Uri insert(final Uri uri, final ContentValues values) {
-        long rowId = helper.getWritableDatabase().replace(TABLE_NAME, null, values);
+        long rowId = helper.getWritableDatabase().insert(TABLE_NAME, null, values);
 
         getContext().getContentResolver().notifyChange(uri, null);
 

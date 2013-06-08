@@ -23,6 +23,10 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
     private TextView locationEditText;
     private Location lastLocation;
 
+    private EditText nameEditText;
+    private EditText descriptionEditText;
+    private  Spinner spinner;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -36,6 +40,11 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
 
         locationEditText=(TextView) findViewById(R.id.location_edittext);
 
+        nameEditText=(EditText)findViewById(R.id.nameEditText);
+        descriptionEditText=(EditText)findViewById(R.id.descriptionEditText);;
+
+
+        findViewById(R.id.addButton).setEnabled(false);
         findViewById(R.id.addButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -47,19 +56,21 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
     public void add() {
         ContentValues mNewValues = new ContentValues();
 
-        if (lastLocation!=null) {
-            mNewValues.put(POIDBContentProvider.KEY_LAT,lastLocation.getLatitude());
-            mNewValues.put(POIDBContentProvider.KEY_LON,lastLocation.getLongitude());
-        }
+        mNewValues.put(POIDBContentProvider.KEY_LAT,(int)(1E6*lastLocation.getLatitude()));
+        mNewValues.put(POIDBContentProvider.KEY_LON,(int)(1E6*lastLocation.getLongitude()));
+        mNewValues.put(POIDBContentProvider.KEY_CREATED_AT,lastLocation.getTime());
 
-       // mNewValues.put();
+        mNewValues.put(POIDBContentProvider.KEY_NAME,nameEditText.getText().toString());
+        mNewValues.put(POIDBContentProvider.KEY_DESCRIPTION,descriptionEditText.getText().toString());
+        mNewValues.put(POIDBContentProvider.KEY_TYPE,spinner.getSelectedItem().toString());
+        mNewValues.put(POIDBContentProvider.KEY_CREATOR,"undefined");
 
         getContentResolver().insert(POIDBContentProvider.CONTENT_URI,mNewValues);
 
     }
 
     private void setupSpinner() {
-        Spinner spinner = (Spinner) findViewById(R.id.type_spinner);
+        spinner = (Spinner) findViewById(R.id.type_spinner);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, new String[]{"Power Outlet", "Apple Tree", "Danger Zone"});
         adapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
         spinner.setAdapter(adapter);
@@ -98,6 +109,8 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
     @Override
     public void onLocationChanged(Location location) {
         lastLocation=location;
-        locationEditText.setText("lat:"+location.getLatitude() + " lon:"+location.getLongitude() + " accuracy: " + location.getAccuracy());
+        findViewById(R.id.addButton).setEnabled(true);
+        locationEditText.setText("lat:"+location.getLatitude() + " lon:"+location.getLongitude() + " accuracy: " + location.getAccuracy() + " alt"+location.getAltitude());
+
     }
 }

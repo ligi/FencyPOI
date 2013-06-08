@@ -3,6 +3,7 @@ package org.battlehack.fencypoi;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.provider.BaseColumns;
 
 /**
  * Created by ligi on 6/8/13.
@@ -14,13 +15,15 @@ public class POIDBCreateHelper extends SQLiteOpenHelper {
 
     private static final String DICTIONARY_TABLE_CREATE =
             "CREATE TABLE " + POIDBContentProvider.TABLE_NAME + " (" +
+                    BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     POIDBContentProvider.KEY_LAT + " INTEGER NOT NULL, " +
                     POIDBContentProvider.KEY_LON + " INTEGER NOT NULL, " +
                     POIDBContentProvider.KEY_ALTITUDE + " INTEGER, " +
                     POIDBContentProvider.KEY_NAME + " TEXT, " +
                     POIDBContentProvider.KEY_RADIUS + " TEXT, " +
                     POIDBContentProvider.KEY_DESCRIPTION + " TEXT, " +
-                    POIDBContentProvider.KEY_CREATED + " TEXT NOT NULL, " +
+                    POIDBContentProvider.KEY_CREATOR + " TEXT NOT NULL, " +
+                    POIDBContentProvider.KEY_CREATED_AT + " INTEGER NOT NULL, " +
                     POIDBContentProvider.KEY_TYPE + " TEXT NOT NULL);";
 
     POIDBCreateHelper(Context context) {

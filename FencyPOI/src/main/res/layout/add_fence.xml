@@ -18,7 +18,7 @@
     <EditText
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/editText"
+            android:id="@+id/nameEditText"
             android:layout_gravity="left|center_vertical"/>
 
     <TextView
@@ -31,7 +31,7 @@
     <EditText
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/editText"
+            android:id="@+id/descriptionEditText"
             android:layout_gravity="left|center_vertical"/>
 
     <TextView

@@ -4,6 +4,7 @@ import android.R;
 import android.app.ListFragment;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.widget.ArrayAdapter;
 import android.widget.SimpleCursorAdapter;
 
 /**
