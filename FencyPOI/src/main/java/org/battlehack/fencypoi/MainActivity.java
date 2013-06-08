@@ -73,6 +73,6 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
 
     @Override
     public void onLocationChanged(Location location) {
-        locationEditText.setText(location.toString());
+        locationEditText.setText("lat:"+location.getLatitude() + " lon:"+location.getLongitude() + " accuracy: " + location.getAccuracy());
     }
 }
