@@ -28,12 +28,17 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
         setupLocationListener();
 
         setContentView(R.layout.add_fence);
+
+        setupSpinner();
+
+        locationEditText=(TextView) findViewById(R.id.location_edittext);
+    }
+
+    private void setupSpinner() {
         Spinner spinner = (Spinner) findViewById(R.id.type_spinner);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, new String[]{"Power Outlet", "Apple Tree", "Danger Zone"});
         adapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
         spinner.setAdapter(adapter);
-
-        locationEditText=(TextView) findViewById(R.id.location_edittext);
     }
 
     private void setupLocationListener() {
