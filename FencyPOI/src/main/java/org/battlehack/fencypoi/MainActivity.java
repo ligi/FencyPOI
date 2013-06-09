@@ -112,7 +112,7 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 		btMac = bluetoothAdapter.getAddress();
         
-		nfcAdapter = nfcManager.getDefaultAdapter();
+/*		nfcAdapter = nfcManager.getDefaultAdapter();
 		nfcAdapter.setNdefPushMessageCallback(new CreateNdefMessageCallback()
 		{			
 			@Override
@@ -123,7 +123,7 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
 					return new NdefMessage(new NdefRecord[] { record, appRecord });
 			}
 		}, this, new Activity[]{});
-
+*/
         nameEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i2, int i3) {
@@ -168,7 +168,7 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
 	protected void onResume()
 	{
 		super.onResume();
-
+/*
 		if (bluetoothAdapter != null && bluetoothAdapter.isEnabled())
 		{
 			maybeInitBluetoothListening();
@@ -179,16 +179,17 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
 
 			nfcAdapter.enableForegroundDispatch(this, pendingIntent, new IntentFilter[] { intentFilter }, null);
 		}
+		*/
 	}
     
 	@Override
 	public void onPause()
 	{
-		nfcAdapter.disableForegroundDispatch(this);
+		/*nfcAdapter.disableForegroundDispatch(this);
 
 		if (acceptThread != null)
 			acceptThread.stopAccepting();
-
+*/
 		super.onPause();
 	}
 	
