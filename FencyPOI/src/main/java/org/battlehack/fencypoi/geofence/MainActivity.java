@@ -307,7 +307,7 @@ public class MainActivity extends FragmentActivity {
 
     /*
      * Inflate the app menu
-     */
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -315,9 +315,9 @@ public class MainActivity extends FragmentActivity {
         return true;
 
     }
-    /*
+
      * Respond to menu item selections
-     */
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
@@ -359,7 +359,7 @@ public class MainActivity extends FragmentActivity {
                 return super.onOptionsItemSelected(item);
         }
     }
-
+ */
     /*
      * Save the current geofence settings in SharedPreferences.
      */
