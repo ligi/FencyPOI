@@ -20,7 +20,7 @@ public class POIDBCreateHelper extends SQLiteOpenHelper {
                     POIDBContentProvider.KEY_LON + " INTEGER NOT NULL, " +
                     POIDBContentProvider.KEY_ALTITUDE + " INTEGER, " +
                     POIDBContentProvider.KEY_NAME + " TEXT, " +
-                    POIDBContentProvider.KEY_RADIUS + " TEXT, " +
+                    POIDBContentProvider.KEY_RADIUS + " INTEGER, " +
                     POIDBContentProvider.KEY_DESCRIPTION + " TEXT, " +
                     POIDBContentProvider.KEY_CREATOR + " TEXT NOT NULL, " +
                     POIDBContentProvider.KEY_CREATED_AT + " INTEGER NOT NULL, " +
