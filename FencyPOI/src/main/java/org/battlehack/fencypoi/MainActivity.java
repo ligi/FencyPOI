@@ -2,6 +2,7 @@ package org.battlehack.fencypoi;
 
 import android.app.Activity;
 import android.app.PendingIntent;
+import android.bluetooth.BluetoothAdapter;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
@@ -14,6 +15,7 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
@@ -31,6 +33,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.battlehack.fencypoi.geofence.ReceiveTransitionsIntentService;
 
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,6 +51,10 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
     private GoogleMap mMap;
 
     private MarkerOptions marker;
+    
+	private BluetoothAdapter bluetoothAdapter;
+	private BluetoothListenThread acceptThread;
+	private String btMac;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,8 +71,6 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
 
         nameEditText = (EditText) findViewById(R.id.nameEditText);
         descriptionEditText = (EditText) findViewById(R.id.descriptionEditText);
-        ;
-
 
         findViewById(R.id.addButton).setEnabled(false);
         findViewById(R.id.addButton).setOnClickListener(new View.OnClickListener() {
@@ -76,7 +82,27 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
 
 
         mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
+
+        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
     }
+    
+    @Override
+    protected void onResume()
+    {    	
+    	super.onResume();
+
+		if (bluetoothAdapter != null && bluetoothAdapter.isEnabled())
+			maybeInitBluetoothListening();
+    }
+    
+	@Override
+	public void onPause()
+	{
+		if (acceptThread != null)
+			acceptThread.stopAccepting();
+		
+		super.onPause();
+	}
 
     public void add() {
         ContentValues mNewValues = new ContentValues();
@@ -205,4 +231,38 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
     public void onAddGeofencesResult(int i, String[] strings) {
 
     }
+    
+	private void maybeInitBluetoothListening()
+	{
+		btMac = bluetoothAdapter.getAddress();
+
+		acceptThread = new BluetoothListenThread(bluetoothAdapter)
+		{
+			@Override
+			public void handleMsg(final byte[] msg)
+			{
+				runOnUiThread(new Runnable()
+				{
+					public void run()
+					{
+						System.out.println("=== BTTX bluetooth message arrived");
+						Toast.makeText(MainActivity.this, "BTTX bluetooth message arrived", Toast.LENGTH_LONG).show();
+
+						try
+						{
+							final DataInputStream dis = new DataInputStream(new ByteArrayInputStream(msg));
+							final ContentValues values = new ContentValues();
+							values.put(POIDBContentProvider.KEY_LAT, dis.readInt());
+							dis.close();
+						}
+						catch (final Exception x)
+						{
+							Toast.makeText(MainActivity.this, "exception: " + x, Toast.LENGTH_LONG).show();
+							x.printStackTrace();
+						}
+					}
+				});
+			}
+		};
+	}
 }
