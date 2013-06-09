@@ -4,8 +4,10 @@ import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import org.battlehack.fencypoi.geofence.ReceiveTransitionsIntentService;
 
@@ -116,16 +118,9 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
 			@Override
 			public NdefMessage createNdefMessage(final NfcEvent event)
 			{
-				try
-				{
-					final NdefRecord record = new NdefRecord(btMac.getBytes());
+					final NdefRecord record = createExternal(getPackageName(), "pois", btMac.getBytes());
 					final NdefRecord appRecord = NdefRecord.createApplicationRecord(getPackageName());
 					return new NdefMessage(new NdefRecord[] { record, appRecord });
-				}
-				catch(FormatException x)
-				{
-					throw new RuntimeException(x);
-				}
 			}
 		}, this, new Activity[]{});
 
@@ -146,6 +141,27 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
 
             }
         });
+    }
+
+    public static NdefRecord createExternal(String domain, String type, byte[] data) {
+        if (domain == null) throw new NullPointerException("domain is null");
+        if (type == null) throw new NullPointerException("type is null");
+
+        domain = domain.trim().toLowerCase(Locale.US);
+        type = type.trim().toLowerCase(Locale.US);
+
+        if (domain.length() == 0) throw new IllegalArgumentException("domain is empty");
+        if (type.length() == 0) throw new IllegalArgumentException("type is empty");
+
+        final Charset utf8 = Charset.forName("UTF8");
+		byte[] byteDomain = domain.getBytes(utf8);
+        byte[] byteType = type.getBytes(utf8);
+        byte[] b = new byte[byteDomain.length + 1 + byteType.length];
+        System.arraycopy(byteDomain, 0, b, 0, byteDomain.length);
+        b[byteDomain.length] = ':';
+        System.arraycopy(byteType, 0, b, byteDomain.length + 1, byteType.length);
+
+        return new NdefRecord(NdefRecord.TNF_EXTERNAL_TYPE, b, null, data);
     }
     
 	@Override
@@ -182,7 +198,7 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
 		final Parcelable[] msgs = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
 		final NdefMessage ndef = (NdefMessage) msgs[0];
 
-		final String sendBtMac = new String(ndef.toByteArray());
+		final String sendBtMac = new String(ndef.getRecords()[0].getPayload());
 		System.out.println("sendBtMac: " + sendBtMac);
 		
 		BluetoothSocket socket = null;
