@@ -14,6 +14,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Log;
 
+import org.battlehack.fencypoi.MainActivity;
 import org.battlehack.fencypoi.R;
 
 import java.util.List;
@@ -40,15 +41,15 @@ public class ReceiveTransitionsIntentService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
 
-        // Create a local broadcast Intent
+  /*      // Create a local broadcast Intent
         Intent broadcastIntent = new Intent();
 
         // Give it the category for all intents sent by the Intent Service
         broadcastIntent.addCategory(GeofenceUtils.CATEGORY_LOCATION_SERVICES);
-
+*/
         // First check for errors
         if (LocationClient.hasError(intent)) {
-
+/*
             // Get the error code
             int errorCode = LocationClient.getErrorCode(intent);
 
@@ -65,7 +66,7 @@ public class ReceiveTransitionsIntentService extends IntentService {
                            .putExtra(GeofenceUtils.EXTRA_GEOFENCE_STATUS, errorMessage);
 
             // Broadcast the error *locally* to other components in this app
-            LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent);
+            LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent);*/
 
         // If there's no error, get the transition type and create a notification
         } else {
@@ -86,24 +87,24 @@ public class ReceiveTransitionsIntentService extends IntentService {
                 for (int index = 0; index < geofences.size() ; index++) {
                     geofenceIds[index] = geofences.get(index).getRequestId();
                 }
-                String ids = TextUtils.join(GeofenceUtils.GEOFENCE_ID_DELIMITER,geofenceIds);
+                String ids = TextUtils.join(",",geofenceIds);
                 String transitionType = getTransitionString(transition);
 
                 sendNotification(transitionType, ids);
 
                 // Log the transition type and a message
-                Log.d(GeofenceUtils.APPTAG,
+                Log.d("FencyPOI",
                         getString(
                                 R.string.geofence_transition_notification_title,
                                 transitionType,
                                 ids));
-                Log.d(GeofenceUtils.APPTAG,
+                Log.d("FencyPOI",
                         getString(R.string.geofence_transition_notification_text));
 
             // An invalid transition was reported
             } else {
                 // Always log as an error
-                Log.e(GeofenceUtils.APPTAG,
+                Log.e("FencyPOI",
                         getString(R.string.geofence_transition_invalid_type, transition));
             }
         }

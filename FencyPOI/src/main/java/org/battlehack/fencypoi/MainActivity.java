@@ -136,7 +136,7 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
                     .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER)
                     .setCircularRegion((double) cursor.getInt(cursor.getColumnIndexOrThrow(POIDBContentProvider.KEY_LAT)) / 1E6,
                             (double) cursor.getInt(cursor.getColumnIndexOrThrow(POIDBContentProvider.KEY_LON)) / 1E6,
-                            5f
+                            50f
                     )
                     .setExpirationDuration(1000 * 60 * 60 * 24)
                     .build());
