@@ -6,5 +6,11 @@
 
     <style name="MyActionBar" parent="@android:style/Widget.Holo.Light.ActionBar">
         <item name="android:background">#797979</item>
+        <item name="android:logo">@drawable/logo_app</item>
+        <item name="android:titleTextStyle">@style/MyTheme.ActionBar.TitleTextStyle</item>
+    </style>
+
+    <style name="MyTheme.ActionBar.TitleTextStyle" parent="@android:style/TextAppearance.Holo.Widget.ActionBar.Title">
+        <item name="android:textColor">@android:color/white</item>
     </style>
 </resources>

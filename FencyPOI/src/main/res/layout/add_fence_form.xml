@@ -16,6 +16,8 @@
             android:layout_marginTop="@dimen/small_margin"
             android:layout_marginBottom="@dimen/small_margin"
             android:textStyle="bold"
+            android:textSize="24sp"
+
             android:id="@+id/nameEditText"
             android:gravity="center"
             android:layout_gravity="left|center_vertical"/>
@@ -41,6 +43,7 @@
             android:layout_height="wrap_content"
             android:background="#797979"
             >
+
     <fragment
           android:id="@+id/map"
           android:layout_margin="@dimen/small_margin"
@@ -84,7 +87,7 @@
             android:layout_marginRight="@dimen/large_margin"
             android:layout_marginLeft="@dimen/large_margin"
             android:layout_marginBottom="@dimen/small_margin"
-
+            android:textColor="@android:color/white"
             android:text="Add this fence"
             android:id="@+id/addButton"
             android:layout_gravity="center"
