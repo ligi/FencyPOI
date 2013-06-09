@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+      >
+
+    <EditText
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:hint="Name it"
+            android:background="@drawable/box"
+            android:layout_marginRight="@dimen/large_margin"
+            android:layout_marginLeft="@dimen/large_margin"
+            android:layout_marginTop="@dimen/small_margin"
+            android:layout_marginBottom="@dimen/small_margin"
+            android:id="@+id/nameEditText"
+            android:layout_gravity="left|center_vertical"/>
+
+
+    <EditText
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:hint="describe it"
+            android:lines="4"
+            android:background="@drawable/box"
+            android:layout_marginRight="@dimen/small_margin"
+            android:layout_marginLeft="@dimen/small_margin"
+            android:id="@+id/descriptionEditText"
+            android:layout_gravity="left|center_vertical"/>
+
+    <TextView
+            android:text="Location"
+            android:layout_marginTop="@dimen/small_margin"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="@dimen/small_margin"
+            android:layout_marginLeft="@dimen/small_margin"/>
+
+    <TextView
+            android:id="@+id/location_edittext"
+            android:text="No Location Yet"
+            android:layout_marginLeft="@dimen/small_margin"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            />
+
+
+    <Spinner
+            android:layout_width="fill_parent"
+
+            android:layout_margin="@dimen/small_margin"
+            android:background="@drawable/dd"
+            android:layout_height="wrap_content"
+            android:id="@+id/type_spinner"
+            android:layout_gravity="left|center_vertical"/>
+
+    <Button
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+
+            android:layout_marginRight="@dimen/large_margin"
+            android:layout_marginLeft="@dimen/large_margin"
+
+            android:text="Add this fence"
+            android:id="@+id/addButton"
+            android:layout_gravity="center"
+            android:background="@drawable/background_btn"
+            />
+
+
+</merge>
