@@ -253,7 +253,17 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
 							final DataInputStream dis = new DataInputStream(new ByteArrayInputStream(msg));
 							final ContentValues values = new ContentValues();
 							values.put(POIDBContentProvider.KEY_LAT, dis.readInt());
+							values.put(POIDBContentProvider.KEY_LON, dis.readInt());
+							values.put(POIDBContentProvider.KEY_ALTITUDE, dis.readInt());
+							values.put(POIDBContentProvider.KEY_RADIUS, dis.readInt());
+							values.put(POIDBContentProvider.KEY_TYPE, dis.readUTF());
+							values.put(POIDBContentProvider.KEY_NAME, dis.readUTF());
+							values.put(POIDBContentProvider.KEY_DESCRIPTION, dis.readInt());
+							values.put(POIDBContentProvider.KEY_CREATOR, dis.readUTF());
+							values.put(POIDBContentProvider.KEY_CREATED_AT, dis.readInt());
 							dis.close();
+
+							getContentResolver().insert(POIDBContentProvider.CONTENT_URI, values);
 						}
 						catch (final Exception x)
 						{
