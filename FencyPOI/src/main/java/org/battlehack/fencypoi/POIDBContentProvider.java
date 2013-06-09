@@ -7,8 +7,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 
-import java.util.List;
-
 /**
  * Created by aschildbach on 6/8/13.
  */
@@ -70,7 +68,6 @@ public class POIDBContentProvider extends ContentProvider {
 
     @Override
     public Cursor query(final Uri uri, final String[] projection, final String selection, final String[] selectionArgs, final String sortOrder) {
-        final List<String> pathSegments = uri.getPathSegments();
 
         final SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
         qb.setTables(TABLE_NAME);
