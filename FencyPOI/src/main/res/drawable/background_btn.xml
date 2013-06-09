@@ -9,6 +9,11 @@
         </shape>
     </item>
 
+    <item android:state_enabled="false">
+        <shape>
+            <solid android:color="#eaeaea"/>
+        </shape>
+    </item>
     <item>
         <shape>
             <solid android:color="#3ebbbf"/>
