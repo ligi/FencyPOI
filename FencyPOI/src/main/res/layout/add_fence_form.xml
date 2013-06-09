@@ -9,21 +9,25 @@
     <EditText
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:hint="Name it"
+            android:hint="Name it!"
             android:background="@drawable/box"
             android:layout_marginRight="@dimen/large_margin"
             android:layout_marginLeft="@dimen/large_margin"
             android:layout_marginTop="@dimen/small_margin"
             android:layout_marginBottom="@dimen/small_margin"
+            android:paddingLeft="16dp"
+            android:textStyle="bold"
             android:id="@+id/nameEditText"
+            android:gravity="center"
             android:layout_gravity="left|center_vertical"/>
 
 
     <EditText
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:hint="describe it"
+            android:hint="Describe it!"
             android:lines="4"
+            android:paddingLeft="16dp"
             android:background="@drawable/box"
             android:layout_marginRight="@dimen/small_margin"
             android:layout_marginLeft="@dimen/small_margin"
