@@ -13,7 +13,7 @@ public class POIDBCreateHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "DBNAME";
 
-    private static final String DICTIONARY_TABLE_CREATE =
+    private static final String TABLE_CREATE =
             "CREATE TABLE " + POIDBContentProvider.TABLE_NAME + " (" +
                     BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     POIDBContentProvider.KEY_LAT + " INTEGER NOT NULL, " +
@@ -32,7 +32,7 @@ public class POIDBCreateHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL(DICTIONARY_TABLE_CREATE);
+        db.execSQL(TABLE_CREATE);
     }
 
     @Override
