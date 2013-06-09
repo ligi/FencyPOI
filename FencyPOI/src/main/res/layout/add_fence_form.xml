@@ -15,7 +15,6 @@
             android:layout_marginLeft="@dimen/large_margin"
             android:layout_marginTop="@dimen/small_margin"
             android:layout_marginBottom="@dimen/small_margin"
-            android:paddingLeft="16dp"
             android:textStyle="bold"
             android:id="@+id/nameEditText"
             android:gravity="center"
@@ -27,19 +26,28 @@
             android:layout_height="wrap_content"
             android:hint="Describe it!"
             android:lines="4"
-            android:paddingLeft="16dp"
+            android:padding="16dp"
             android:background="@drawable/box"
             android:layout_marginRight="@dimen/small_margin"
             android:layout_marginLeft="@dimen/small_margin"
             android:id="@+id/descriptionEditText"
+            android:gravity="top"
             android:layout_gravity="left|center_vertical"/>
 
+    <FrameLayout
+            android:layout_marginTop="@dimen/small_margin"
+            android:layout_marginBottom="@dimen/small_margin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#797979"
+            >
     <fragment
           android:id="@+id/map"
           android:layout_margin="@dimen/small_margin"
           android:layout_width="match_parent"
-          android:layout_height="150dp"
+          android:layout_height="200dp"
           android:name="com.google.android.gms.maps.MapFragment"/>
+    </FrameLayout>
 
 
     <TextView
