@@ -9,6 +9,8 @@ import android.database.Cursor;
 import android.location.Location;
 import android.os.Bundle;
 import android.provider.BaseColumns;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -38,7 +40,7 @@ import java.io.DataInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends Activity implements GooglePlayServicesClient.ConnectionCallbacks, GooglePlayServicesClient.OnConnectionFailedListener, LocationListener, LocationClient.OnAddGeofencesResultListener {
+public class MainActivity extends Activity implements GooglePlayServicesClient.ConnectionCallbacks, GooglePlayServicesClient.OnConnectionFailedListener, LocationListener, LocationClient.OnAddGeofencesResultListener{
 
     private LocationClient locationclient;
     private TextView locationEditText;
@@ -55,6 +57,10 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
 	private BluetoothAdapter bluetoothAdapter;
 	private BluetoothListenThread acceptThread;
 	private String btMac;
+
+    private boolean hasText=false;
+    private boolean hasLocation=false;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,10 +86,27 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
             }
         });
 
-
         mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
 
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+
+        nameEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i2, int i3) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i2, int i3) {
+                hasText=charSequence.length()>0;
+                setButtonEnabledState();
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
     }
     
     @Override
@@ -204,6 +227,8 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
 
     @Override
     public void onLocationChanged(Location location) {
+        hasLocation=(location!=null);
+        setButtonEnabledState();
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
         if (marker == null) {
             marker = new MarkerOptions()
@@ -221,17 +246,19 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
 
         lastLocation = location;
 
+        setButtonEnabledState();
 
-        findViewById(R.id.addButton).setEnabled(true);
         locationEditText.setText("lat:" + location.getLatitude() + " lon:" + location.getLongitude() + " accuracy: " + location.getAccuracy() + " alt" + location.getAltitude());
-
     }
 
     @Override
     public void onAddGeofencesResult(int i, String[] strings) {
 
     }
-    
+
+    public void setButtonEnabledState() {
+        findViewById(R.id.addButton).setEnabled(hasText && hasLocation);
+    }
 	private void maybeInitBluetoothListening()
 	{
 		btMac = bluetoothAdapter.getAddress();
