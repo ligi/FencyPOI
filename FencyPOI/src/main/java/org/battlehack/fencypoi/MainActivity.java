@@ -1,9 +1,9 @@
 package org.battlehack.fencypoi;
 
+import android.app.Activity;
 import android.content.ContentValues;
 import android.location.Location;
 import android.os.Bundle;
-import android.app.Activity;
 import android.view.Menu;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -16,8 +16,16 @@ import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
-public class MainActivity extends Activity implements GooglePlayServicesClient.ConnectionCallbacks, GooglePlayServicesClient.OnConnectionFailedListener,LocationListener {
+public class MainActivity extends Activity implements GooglePlayServicesClient.ConnectionCallbacks, GooglePlayServicesClient.OnConnectionFailedListener, LocationListener {
 
     private LocationClient locationclient;
     private TextView locationEditText;
@@ -25,7 +33,11 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
 
     private EditText nameEditText;
     private EditText descriptionEditText;
-    private  Spinner typeSpinner;
+    private Spinner typeSpinner;
+
+    private GoogleMap mMap;
+
+    private MarkerOptions marker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,10 +50,11 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
 
         setupSpinner();
 
-        locationEditText=(TextView) findViewById(R.id.location_edittext);
+        locationEditText = (TextView) findViewById(R.id.location_edittext);
 
-        nameEditText=(EditText)findViewById(R.id.nameEditText);
-        descriptionEditText=(EditText)findViewById(R.id.descriptionEditText);;
+        nameEditText = (EditText) findViewById(R.id.nameEditText);
+        descriptionEditText = (EditText) findViewById(R.id.descriptionEditText);
+        ;
 
 
         findViewById(R.id.addButton).setEnabled(false);
@@ -51,39 +64,42 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
                 add();
             }
         });
+
+
+        mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
     }
 
     public void add() {
         ContentValues mNewValues = new ContentValues();
 
-        mNewValues.put(POIDBContentProvider.KEY_LAT,(int)(1E6*lastLocation.getLatitude()));
-        mNewValues.put(POIDBContentProvider.KEY_LON,(int)(1E6*lastLocation.getLongitude()));
-        mNewValues.put(POIDBContentProvider.KEY_CREATED_AT,lastLocation.getTime());
+        mNewValues.put(POIDBContentProvider.KEY_LAT, (int) (1E6 * lastLocation.getLatitude()));
+        mNewValues.put(POIDBContentProvider.KEY_LON, (int) (1E6 * lastLocation.getLongitude()));
+        mNewValues.put(POIDBContentProvider.KEY_CREATED_AT, lastLocation.getTime());
 
-        mNewValues.put(POIDBContentProvider.KEY_NAME,nameEditText.getText().toString());
-        mNewValues.put(POIDBContentProvider.KEY_DESCRIPTION,descriptionEditText.getText().toString());
+        mNewValues.put(POIDBContentProvider.KEY_NAME, nameEditText.getText().toString());
+        mNewValues.put(POIDBContentProvider.KEY_DESCRIPTION, descriptionEditText.getText().toString());
         mNewValues.put(POIDBContentProvider.KEY_TYPE, typeSpinner.getSelectedItem().toString());
-        mNewValues.put(POIDBContentProvider.KEY_CREATOR,"undefined");
+        mNewValues.put(POIDBContentProvider.KEY_CREATOR, "undefined");
 
-        getContentResolver().insert(POIDBContentProvider.CONTENT_URI,mNewValues);
+        getContentResolver().insert(POIDBContentProvider.CONTENT_URI, mNewValues);
 
     }
 
     private void setupSpinner() {
         typeSpinner = (Spinner) findViewById(R.id.type_spinner);
-        ArrayAdapter<String> typeAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, new String[]{"Power Outlet", "Apple Tree", "Danger Zone","Configure types"});
+        ArrayAdapter<String> typeAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, new String[]{"Power Outlet", "Apple Tree", "Danger Zone", "Configure types"});
         typeAdapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
         typeSpinner.setAdapter(typeAdapter);
 
 
         Spinner alertSpinner = (Spinner) findViewById(R.id.alert_spinner);
-        ArrayAdapter<String> alertAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, new String[]{"Never","When walking","when biking","when driving"});
+        ArrayAdapter<String> alertAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, new String[]{"Never", "When walking", "when biking", "when driving"});
         alertAdapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
         alertSpinner.setAdapter(alertAdapter);
     }
 
     private void setupLocationListener() {
-        locationclient = new LocationClient(this,this,this);
+        locationclient = new LocationClient(this, this, this);
         locationclient.connect();
     }
 
@@ -114,9 +130,26 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
 
     @Override
     public void onLocationChanged(Location location) {
-        lastLocation=location;
+        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+        if (marker == null) {
+            marker = new MarkerOptions()
+                    .position(latLng)
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_icon))
+                    .title("Your Position");
+            CameraUpdate cu = CameraUpdateFactory.newLatLngZoom(latLng,18f);
+            mMap.moveCamera(cu);
+
+            mMap.addMarker(marker);
+        } else {
+            marker.position(latLng);
+
+        }
+
+        lastLocation = location;
+
+
         findViewById(R.id.addButton).setEnabled(true);
-        locationEditText.setText("lat:"+location.getLatitude() + " lon:"+location.getLongitude() + " accuracy: " + location.getAccuracy() + " alt"+location.getAltitude());
+        locationEditText.setText("lat:" + location.getLatitude() + " lon:" + location.getLongitude() + " accuracy: " + location.getAccuracy() + " alt" + location.getAltitude());
 
     }
 }
