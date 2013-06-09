@@ -1,9 +1,13 @@
 package org.battlehack.fencypoi;
 
 import android.app.Activity;
+import android.app.PendingIntent;
 import android.content.ContentValues;
+import android.content.Intent;
+import android.database.Cursor;
 import android.location.Location;
 import android.os.Bundle;
+import android.provider.BaseColumns;
 import android.view.Menu;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -13,6 +17,7 @@ import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
+import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
@@ -20,12 +25,16 @@ import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-public class MainActivity extends Activity implements GooglePlayServicesClient.ConnectionCallbacks, GooglePlayServicesClient.OnConnectionFailedListener, LocationListener {
+import org.battlehack.fencypoi.geofence.ReceiveTransitionsIntentService;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class MainActivity extends Activity implements GooglePlayServicesClient.ConnectionCallbacks, GooglePlayServicesClient.OnConnectionFailedListener, LocationListener, LocationClient.OnAddGeofencesResultListener {
 
     private LocationClient locationclient;
     private TextView locationEditText;
@@ -116,6 +125,45 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
         LocationRequest locationrequest = LocationRequest.create();
         locationrequest.setInterval(100);
         locationclient.requestLocationUpdates(locationrequest, this);
+
+        List<Geofence> geofences = new ArrayList<Geofence>();
+
+        final Cursor cursor = managedQuery(POIDBContentProvider.CONTENT_URI, null, null, null, null);
+
+        while (cursor.moveToNext()) {
+            geofences.add(new Geofence.Builder()
+                    .setRequestId(Integer.toString(cursor.getInt(cursor.getColumnIndexOrThrow(BaseColumns._ID))))
+                    .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER)
+                    .setCircularRegion((double) cursor.getInt(cursor.getColumnIndexOrThrow(POIDBContentProvider.KEY_LAT)) / 1E6,
+                            (double) cursor.getInt(cursor.getColumnIndexOrThrow(POIDBContentProvider.KEY_LON)) / 1E6,
+                            5f
+                    )
+                    .setExpirationDuration(1000 * 60 * 60 * 24)
+                    .build());
+
+        }
+
+        if (geofences.size()>0) {
+            locationclient.addGeofences(geofences, getTransitionPendingIntent(), this);
+        }
+    }
+
+    /*
+    * Create a PendingIntent that triggers an IntentService in your
+    * app when a geofence transition occurs.
+    */
+    private PendingIntent getTransitionPendingIntent() {
+        // Create an explicit Intent
+        Intent intent = new Intent(this,
+                ReceiveTransitionsIntentService.class);
+        /*
+         * Return the PendingIntent
+         */
+        return PendingIntent.getService(
+                this,
+                0,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
     @Override
@@ -136,7 +184,7 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
                     .position(latLng)
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_icon))
                     .title("Your Position");
-            CameraUpdate cu = CameraUpdateFactory.newLatLngZoom(latLng,18f);
+            CameraUpdate cu = CameraUpdateFactory.newLatLngZoom(latLng, 18f);
             mMap.moveCamera(cu);
 
             mMap.addMarker(marker);
@@ -150,6 +198,11 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
 
         findViewById(R.id.addButton).setEnabled(true);
         locationEditText.setText("lat:" + location.getLatitude() + " lon:" + location.getLongitude() + " accuracy: " + location.getAccuracy() + " alt" + location.getAltitude());
+
+    }
+
+    @Override
+    public void onAddGeofencesResult(int i, String[] strings) {
 
     }
 }
