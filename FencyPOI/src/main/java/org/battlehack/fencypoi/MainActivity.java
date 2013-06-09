@@ -25,7 +25,7 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
 
     private EditText nameEditText;
     private EditText descriptionEditText;
-    private  Spinner spinner;
+    private  Spinner typeSpinner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,7 +62,7 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
 
         mNewValues.put(POIDBContentProvider.KEY_NAME,nameEditText.getText().toString());
         mNewValues.put(POIDBContentProvider.KEY_DESCRIPTION,descriptionEditText.getText().toString());
-        mNewValues.put(POIDBContentProvider.KEY_TYPE,spinner.getSelectedItem().toString());
+        mNewValues.put(POIDBContentProvider.KEY_TYPE, typeSpinner.getSelectedItem().toString());
         mNewValues.put(POIDBContentProvider.KEY_CREATOR,"undefined");
 
         getContentResolver().insert(POIDBContentProvider.CONTENT_URI,mNewValues);
@@ -70,10 +70,16 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
     }
 
     private void setupSpinner() {
-        spinner = (Spinner) findViewById(R.id.type_spinner);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, new String[]{"Power Outlet", "Apple Tree", "Danger Zone"});
-        adapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
-        spinner.setAdapter(adapter);
+        typeSpinner = (Spinner) findViewById(R.id.type_spinner);
+        ArrayAdapter<String> typeAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, new String[]{"Power Outlet", "Apple Tree", "Danger Zone","Configure types"});
+        typeAdapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
+        typeSpinner.setAdapter(typeAdapter);
+
+
+        Spinner alertSpinner = (Spinner) findViewById(R.id.alert_spinner);
+        ArrayAdapter<String> alertAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, new String[]{"Never","When walking","when biking","when driving"});
+        alertAdapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
+        alertSpinner.setAdapter(alertAdapter);
     }
 
     private void setupLocationListener() {
