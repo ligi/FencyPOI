@@ -1,13 +1,34 @@
 package org.battlehack.fencypoi;
 
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.battlehack.fencypoi.geofence.ReceiveTransitionsIntentService;
+
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothSocket;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.location.Location;
+import android.nfc.FormatException;
+import android.nfc.NdefMessage;
+import android.nfc.NdefRecord;
+import android.nfc.NfcAdapter;
+import android.nfc.NfcAdapter.CreateNdefMessageCallback;
+import android.nfc.NfcEvent;
+import android.nfc.NfcManager;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.provider.BaseColumns;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -34,13 +55,6 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import org.battlehack.fencypoi.geofence.ReceiveTransitionsIntentService;
-
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.util.ArrayList;
-import java.util.List;
-
 public class MainActivity extends Activity implements GooglePlayServicesClient.ConnectionCallbacks, GooglePlayServicesClient.OnConnectionFailedListener, LocationListener, LocationClient.OnAddGeofencesResultListener{
 
     private LocationClient locationclient;
@@ -54,6 +68,9 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
     private GoogleMap mMap;
 
     private MarkerOptions marker;
+    
+    private NfcManager nfcManager;
+    private NfcAdapter nfcAdapter;
     
 	private BluetoothAdapter bluetoothAdapter;
 	private BluetoothListenThread acceptThread;
@@ -89,7 +106,28 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
 
         mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
 
+        nfcManager = (NfcManager) getSystemService(Context.NFC_SERVICE);
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+		btMac = bluetoothAdapter.getAddress();
+        
+		nfcAdapter = nfcManager.getDefaultAdapter();
+		nfcAdapter.setNdefPushMessageCallback(new CreateNdefMessageCallback()
+		{			
+			@Override
+			public NdefMessage createNdefMessage(final NfcEvent event)
+			{
+				try
+				{
+					final NdefRecord record = new NdefRecord(btMac.getBytes());
+					final NdefRecord appRecord = NdefRecord.createApplicationRecord(getPackageName());
+					return new NdefMessage(new NdefRecord[] { record, appRecord });
+				}
+				catch(FormatException x)
+				{
+					throw new RuntimeException(x);
+				}
+			}
+		}, this, new Activity[]{});
 
         nameEditText.addTextChangedListener(new TextWatcher() {
             @Override
@@ -110,22 +148,94 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
         });
     }
     
-    @Override
-    protected void onResume()
-    {    	
-    	super.onResume();
+	@Override
+	protected void onResume()
+	{
+		super.onResume();
 
 		if (bluetoothAdapter != null && bluetoothAdapter.isEnabled())
+		{
 			maybeInitBluetoothListening();
-    }
+
+			final PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
+					new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
+			final IntentFilter intentFilter = new IntentFilter(NfcAdapter.ACTION_NDEF_DISCOVERED);
+
+			nfcAdapter.enableForegroundDispatch(this, pendingIntent, new IntentFilter[] { intentFilter }, null);
+		}
+	}
     
 	@Override
 	public void onPause()
 	{
+		nfcAdapter.disableForegroundDispatch(this);
+
 		if (acceptThread != null)
 			acceptThread.stopAccepting();
-		
+
 		super.onPause();
+	}
+	
+	@Override
+	protected void onNewIntent(final Intent intent)
+	{
+		final Parcelable[] msgs = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
+		final NdefMessage ndef = (NdefMessage) msgs[0];
+
+		final String sendBtMac = new String(ndef.toByteArray());
+		System.out.println("sendBtMac: " + sendBtMac);
+		
+		BluetoothSocket socket = null;
+		
+		try
+		{
+			
+			final BluetoothDevice device = bluetoothAdapter.getRemoteDevice(sendBtMac);
+			socket = device.createInsecureRfcommSocketToServiceRecord(BluetoothListenThread.BLUETOOTH_UUID);
+
+			socket.connect();
+			final DataOutputStream os = new DataOutputStream(socket.getOutputStream());
+			
+			final Cursor cursor = getContentResolver().query(POIDBContentProvider.CONTENT_URI, null, null, null, null);			
+
+			os.writeInt(cursor.getCount());
+			while (cursor.moveToNext())
+			{
+				os.writeInt(cursor.getInt(cursor.getColumnIndexOrThrow(POIDBContentProvider.KEY_LAT)));
+				os.writeInt(cursor.getInt(cursor.getColumnIndexOrThrow(POIDBContentProvider.KEY_LON)));
+				os.writeInt(cursor.getInt(cursor.getColumnIndexOrThrow(POIDBContentProvider.KEY_ALTITUDE)));
+				os.writeInt(cursor.getInt(cursor.getColumnIndexOrThrow(POIDBContentProvider.KEY_RADIUS)));
+				os.writeUTF(cursor.getString(cursor.getColumnIndexOrThrow(POIDBContentProvider.KEY_TYPE)));
+				os.writeUTF(cursor.getString(cursor.getColumnIndexOrThrow(POIDBContentProvider.KEY_NAME)));
+				os.writeInt(cursor.getInt(cursor.getColumnIndexOrThrow(POIDBContentProvider.KEY_DESCRIPTION)));
+				os.writeUTF(cursor.getString(cursor.getColumnIndexOrThrow(POIDBContentProvider.KEY_CREATOR)));
+				os.writeInt(cursor.getInt(cursor.getColumnIndexOrThrow(POIDBContentProvider.KEY_CREATED_AT)));
+			}
+			cursor.close();
+			
+			os.close();
+		
+			Toast.makeText(MainActivity.this, "sent via bluetooth", Toast.LENGTH_LONG).show();
+		}
+		catch (final IOException x)
+		{
+			x.printStackTrace();
+			Toast.makeText(MainActivity.this, "error sending tx via bluetooth: " + x.getMessage(), Toast.LENGTH_LONG).show();
+		}
+		finally
+		{
+			if (socket != null)
+			{
+				try
+				{
+					socket.close();
+				}
+				catch (final IOException x)
+				{
+					// swallow
+				}
+			}
+		}
 	}
 
     public void add() {
@@ -273,8 +383,6 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
     }
 	private void maybeInitBluetoothListening()
 	{
-		btMac = bluetoothAdapter.getAddress();
-
 		acceptThread = new BluetoothListenThread(bluetoothAdapter)
 		{
 			@Override
