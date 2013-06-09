@@ -95,5 +95,11 @@
             android:layout_gravity="center_vertical|left"
             android:gravity="center_horizontal"/>
 
+    <WebView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/donateWebView"
+            android:layout_margin="@dimen/small_margin"
+            />
 
 </LinearLayout>
