@@ -1,37 +1,26 @@
 package org.battlehack.fencypoi;
-
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
-
-import org.battlehack.fencypoi.geofence.ReceiveTransitionsIntentService;
-
+import org.battlehack.fencypoi.geofence.GeofenceFromProviderAdder;
 import android.app.Activity;
-import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.database.Cursor;
 import android.location.Location;
-import android.nfc.FormatException;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
-import android.nfc.NfcAdapter.CreateNdefMessageCallback;
-import android.nfc.NfcEvent;
 import android.nfc.NfcManager;
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.provider.BaseColumns;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Menu;
@@ -42,10 +31,8 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
-import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
@@ -57,7 +44,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-public class MainActivity extends Activity implements GooglePlayServicesClient.ConnectionCallbacks, GooglePlayServicesClient.OnConnectionFailedListener, LocationListener, LocationClient.OnAddGeofencesResultListener{
+public class MainActivity extends Activity implements GooglePlayServicesClient.ConnectionCallbacks, GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 
     private LocationClient locationclient;
     private TextView locationEditText;
@@ -314,45 +301,10 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
         locationrequest.setInterval(100);
         locationclient.requestLocationUpdates(locationrequest, this);
 
-        List<Geofence> geofences = new ArrayList<Geofence>();
-
-        final Cursor cursor = managedQuery(POIDBContentProvider.CONTENT_URI, null, null, null, null);
-
-        while (cursor.moveToNext()) {
-            geofences.add(new Geofence.Builder()
-                    .setRequestId(Integer.toString(cursor.getInt(cursor.getColumnIndexOrThrow(BaseColumns._ID))))
-                    .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER)
-                    .setCircularRegion((double) cursor.getInt(cursor.getColumnIndexOrThrow(POIDBContentProvider.KEY_LAT)) / 1E6,
-                            (double) cursor.getInt(cursor.getColumnIndexOrThrow(POIDBContentProvider.KEY_LON)) / 1E6,
-                            50f
-                    )
-                    .setExpirationDuration(1000 * 60 * 60 * 24)
-                    .build());
-
-        }
-
-        if (geofences.size()>0) {
-            locationclient.addGeofences(geofences, getTransitionPendingIntent(), this);
-        }
+        new GeofenceFromProviderAdder(this,locationclient).add();
     }
 
-    /*
-    * Create a PendingIntent that triggers an IntentService in your
-    * app when a geofence transition occurs.
-    */
-    private PendingIntent getTransitionPendingIntent() {
-        // Create an explicit Intent
-        Intent intent = new Intent(this,
-                ReceiveTransitionsIntentService.class);
-        /*
-         * Return the PendingIntent
-         */
-        return PendingIntent.getService(
-                this,
-                0,
-                intent,
-                PendingIntent.FLAG_UPDATE_CURRENT);
-    }
+
 
     @Override
     public void onDisconnected() {
@@ -390,10 +342,6 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
         locationEditText.setText("lat:" + location.getLatitude() + " lon:" + location.getLongitude() + " accuracy: " + location.getAccuracy() + " alt" + location.getAltitude());
     }
 
-    @Override
-    public void onAddGeofencesResult(int i, String[] strings) {
-
-    }
 
     public void setButtonEnabledState() {
         findViewById(R.id.addButton).setEnabled(hasText && hasLocation);
