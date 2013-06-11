@@ -23,7 +23,7 @@
     tools:context=".AboutActivity"
     android:gravity="center_horizontal"
     android:padding="24dp"
-    android:background="@drawable/bg"
+    android:background="@drawable/background"
     android:orientation="vertical">
     <ImageView
             android:layout_width="wrap_content"
