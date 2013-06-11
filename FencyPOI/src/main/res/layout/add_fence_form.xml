@@ -88,7 +88,7 @@
             android:layout_marginLeft="@dimen/large_margin"
             android:layout_marginBottom="@dimen/small_margin"
             android:textColor="@android:color/white"
-            android:text="Add this fence"
+            android:text="Add this Fency POI"
             android:id="@+id/addButton"
             android:layout_gravity="center"
             android:background="@drawable/background_btn"
