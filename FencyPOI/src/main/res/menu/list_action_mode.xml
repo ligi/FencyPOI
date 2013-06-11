@@ -1,0 +1,13 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/menu_share"
+        android:title="Share"
+        android:orderInCategory="100"
+        android:icon="@android:drawable/ic_menu_share"
+        android:showAsAction="ifRoom" />
+
+    <item android:id="@+id/menu_delete"
+          android:title="Delete"
+          android:orderInCategory="100"
+          android:icon="@android:drawable/ic_menu_delete"
+          android:showAsAction="ifRoom" />
+</menu>
