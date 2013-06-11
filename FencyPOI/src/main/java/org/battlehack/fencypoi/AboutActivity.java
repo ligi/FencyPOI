@@ -2,6 +2,7 @@ package org.battlehack.fencypoi;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.view.MenuItem;
 
 /**
  * Created by sodoku on 09.06.13.
@@ -9,6 +10,17 @@ import android.os.Bundle;
 public class AboutActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.setContentView(R.layout.activity_about);
+        setContentView(R.layout.activity_about);
+        getActionBar().setDisplayHomeAsUpEnabled(true);
    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 }
