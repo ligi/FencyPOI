@@ -8,18 +8,18 @@
 
         >
 
-    <ScrollView
+    <fragment
+            class="org.battlehack.fencypoi.PoiEditFragment"
+            android:id="@+id/fragment_left"
+            android:tag="edit"
             android:layout_width="0dip"
             android:layout_weight="1"
-            android:layout_height="match_parent"
-            android:background="@drawable/background"
-            >
-
-        <include layout="@layout/add_fence_form"/>
-    </ScrollView>
+            android:layout_height="fill_parent"
+            />
 
     <fragment
             class="org.battlehack.fencypoi.PoiListFragment"
+            android:id="@+id/fragment_right"
             android:tag="list"
             android:layout_width="0dip"
             android:layout_weight="1"

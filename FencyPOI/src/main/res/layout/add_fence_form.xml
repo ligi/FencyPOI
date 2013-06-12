@@ -1,98 +1,102 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:orientation="vertical"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-
-    <EditText
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:hint="Name it!"
-            android:background="@drawable/box"
-            android:layout_marginRight="@dimen/large_margin"
-            android:layout_marginLeft="@dimen/large_margin"
-            android:layout_marginTop="@dimen/small_margin"
-            android:layout_marginBottom="@dimen/small_margin"
-            android:textStyle="bold"
-            android:textSize="24sp"
-
-            android:id="@+id/nameEditText"
-            android:gravity="center"
-            android:layout_gravity="left|center_vertical"/>
-
-
-    <EditText
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:hint="Describe it!"
-            android:lines="4"
-            android:padding="16dp"
-            android:background="@drawable/box"
-            android:layout_marginRight="@dimen/small_margin"
-            android:layout_marginLeft="@dimen/small_margin"
-            android:id="@+id/descriptionEditText"
-            android:gravity="top"
-            android:layout_gravity="left|center_vertical"/>
-
-    <FrameLayout
-            android:layout_marginTop="@dimen/small_margin"
-            android:layout_marginBottom="@dimen/small_margin"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="#797979"
-            >
+            android:layout_height="wrap_content">
 
-    <fragment
-          android:id="@+id/map"
-          android:layout_margin="@dimen/small_margin"
-          android:layout_width="match_parent"
-          android:layout_height="200dp"
-          android:name="com.google.android.gms.maps.MapFragment"/>
-    </FrameLayout>
+    <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
 
-    <TextView
-            android:id="@+id/location_edittext"
-            android:text="No Location Yet"
-            android:layout_marginLeft="@dimen/small_margin"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            />
+        <EditText
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:hint="Name it!"
+                android:background="@drawable/box"
+                android:layout_marginRight="@dimen/large_margin"
+                android:layout_marginLeft="@dimen/large_margin"
+                android:layout_marginTop="@dimen/small_margin"
+                android:layout_marginBottom="@dimen/small_margin"
+                android:textStyle="bold"
+                android:textSize="24sp"
+
+                android:id="@+id/nameEditText"
+                android:gravity="center"
+                android:layout_gravity="left|center_vertical"/>
 
 
-    <Spinner
-            android:layout_width="fill_parent"
+        <EditText
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:hint="Describe it!"
+                android:lines="4"
+                android:padding="16dp"
+                android:background="@drawable/box"
+                android:layout_marginRight="@dimen/small_margin"
+                android:layout_marginLeft="@dimen/small_margin"
+                android:id="@+id/descriptionEditText"
+                android:gravity="top"
+                android:layout_gravity="left|center_vertical"/>
 
-            android:layout_margin="@dimen/small_margin"
-            android:background="@drawable/dd"
-            android:layout_height="wrap_content"
-            android:id="@+id/type_spinner"
-            android:layout_gravity="left|center_vertical"/>
+        <FrameLayout
+                android:layout_marginTop="@dimen/small_margin"
+                android:layout_marginBottom="@dimen/small_margin"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#797979"
+                >
 
-    <Spinner
-            android:layout_width="fill_parent"
-
-            android:layout_margin="@dimen/small_margin"
-            android:background="@drawable/dd"
-            android:layout_height="wrap_content"
-            android:id="@+id/alert_spinner"
-            android:layout_gravity="left|center_vertical"/>
-
-    <Button
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-
-            android:layout_marginRight="@dimen/large_margin"
-            android:layout_marginLeft="@dimen/large_margin"
-            android:layout_marginBottom="@dimen/small_margin"
-            android:textColor="@android:color/white"
-            android:text="Add this Fency POI"
-            android:id="@+id/addButton"
-            android:layout_gravity="center"
-            android:background="@drawable/background_btn"
-            />
+            <fragment
+                    android:id="@+id/map"
+                    android:layout_margin="@dimen/small_margin"
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp"
+                    android:name="com.google.android.gms.maps.MapFragment"/>
+        </FrameLayout>
 
 
-</LinearLayout>
+        <TextView
+                android:id="@+id/location_edittext"
+                android:text="No Location Yet"
+                android:layout_marginLeft="@dimen/small_margin"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                />
+
+
+        <Spinner
+                android:layout_width="fill_parent"
+
+                android:layout_margin="@dimen/small_margin"
+                android:background="@drawable/dd"
+                android:layout_height="wrap_content"
+                android:id="@+id/type_spinner"
+                android:layout_gravity="left|center_vertical"/>
+
+        <Spinner
+                android:layout_width="fill_parent"
+
+                android:layout_margin="@dimen/small_margin"
+                android:background="@drawable/dd"
+                android:layout_height="wrap_content"
+                android:id="@+id/alert_spinner"
+                android:layout_gravity="left|center_vertical"/>
+
+        <Button
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+
+                android:layout_marginRight="@dimen/large_margin"
+                android:layout_marginLeft="@dimen/large_margin"
+                android:layout_marginBottom="@dimen/small_margin"
+                android:textColor="@android:color/white"
+                android:text="Add this Fency POI"
+                android:id="@+id/addButton"
+                android:layout_gravity="center"
+                android:background="@drawable/background_btn"
+                />
+
+
+    </LinearLayout>
+</ScrollView>

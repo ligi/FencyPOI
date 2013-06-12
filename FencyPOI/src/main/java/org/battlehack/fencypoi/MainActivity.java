@@ -7,6 +7,8 @@ import java.nio.charset.Charset;
 import java.util.Locale;
 import org.battlehack.fencypoi.geofence.GeofenceFromProviderAdder;
 import android.app.Activity;
+import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
@@ -21,43 +23,21 @@ import android.nfc.NfcAdapter;
 import android.nfc.NfcManager;
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.EditText;
-import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.maps.CameraUpdate;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 
 public class MainActivity extends Activity implements GooglePlayServicesClient.ConnectionCallbacks, GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 
     private LocationClient locationclient;
-    private TextView locationEditText;
     private Location lastLocation;
 
-    private EditText nameEditText;
-    private EditText descriptionEditText;
-    private Spinner typeSpinner;
 
-    private GoogleMap mMap;
-
-    private MarkerOptions marker;
-    
     private NfcManager nfcManager;
     private NfcAdapter nfcAdapter;
     
@@ -65,9 +45,7 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
 	private BluetoothListenThread acceptThread;
 	private String btMac;
 
-    private boolean hasText=false;
-    private boolean hasLocation=false;
-
+    private PoiEditFragment editFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,24 +54,8 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
 
         setupLocationListener();
 
-        setContentView(R.layout.add_fence);
+        setContentView(R.layout.activity_main);
 
-        setupSpinner();
-
-        locationEditText = (TextView) findViewById(R.id.location_edittext);
-
-        nameEditText = (EditText) findViewById(R.id.nameEditText);
-        descriptionEditText = (EditText) findViewById(R.id.descriptionEditText);
-
-        findViewById(R.id.addButton).setEnabled(false);
-        findViewById(R.id.addButton).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                add();
-            }
-        });
-
-        mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
 
         nfcManager = (NfcManager) getSystemService(Context.NFC_SERVICE);
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -111,23 +73,7 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
 			}
 		}, this, new Activity[]{});
 */
-        nameEditText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i2, int i3) {
 
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i2, int i3) {
-                hasText=charSequence.length()>0;
-                setButtonEnabledState();
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-
-            }
-        });
     }
 
     public static NdefRecord createExternal(String domain, String type, byte[] data) {
@@ -154,7 +100,9 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
 	@Override
 	protected void onResume()
 	{
-		super.onResume();
+
+        super.onResume();
+        setFragment(new PoiListFragment(),"list",null);
 /*
 		if (bluetoothAdapter != null && bluetoothAdapter.isEnabled())
 		{
@@ -172,6 +120,7 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
 	@Override
 	public void onPause()
 	{
+
 		/*nfcAdapter.disableForegroundDispatch(this);
 
 		if (acceptThread != null)
@@ -242,34 +191,8 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
 		}
 	}
 
-    public void add() {
-        ContentValues mNewValues = new ContentValues();
-
-        mNewValues.put(POIDBContentProvider.KEY_LAT, (int) (1E6 * lastLocation.getLatitude()));
-        mNewValues.put(POIDBContentProvider.KEY_LON, (int) (1E6 * lastLocation.getLongitude()));
-        mNewValues.put(POIDBContentProvider.KEY_CREATED_AT, lastLocation.getTime());
-
-        mNewValues.put(POIDBContentProvider.KEY_NAME, nameEditText.getText().toString());
-        mNewValues.put(POIDBContentProvider.KEY_DESCRIPTION, descriptionEditText.getText().toString());
-        mNewValues.put(POIDBContentProvider.KEY_TYPE, typeSpinner.getSelectedItem().toString());
-        mNewValues.put(POIDBContentProvider.KEY_CREATOR, "undefined");
-
-        getContentResolver().insert(POIDBContentProvider.CONTENT_URI, mNewValues);
-
-    }
-
-    private void setupSpinner() {
-        typeSpinner = (Spinner) findViewById(R.id.type_spinner);
-        ArrayAdapter<String> typeAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, new String[]{"Power Outlet", "Apple Tree", "Danger Zone", "Configure types"});
-        typeAdapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
-        typeSpinner.setAdapter(typeAdapter);
 
 
-        Spinner alertSpinner = (Spinner) findViewById(R.id.alert_spinner);
-        ArrayAdapter<String> alertAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, new String[]{"Never", "When walking", "when biking", "when driving"});
-        alertAdapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
-        alertSpinner.setAdapter(alertAdapter);
-    }
 
     private void setupLocationListener() {
         locationclient = new LocationClient(this, this, this);
@@ -281,15 +204,36 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
+
         return true;
+    }
+
+    private void setFragment(Fragment fragment,String tag,String backstack) {
+        if (findViewById(R.id.fragment_main)==null) {
+            return;
+        }
+
+        FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+        fragmentTransaction.replace(R.id.fragment_main, fragment,tag);
+        if (backstack!=null) {
+            fragmentTransaction.addToBackStack(backstack);
+        }
+
+        fragmentTransaction.commit();
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
-            case R.id.action_settings:
+            case R.id.action_about:
                 Intent intent = new Intent(this, AboutActivity.class);
                 startActivity(intent);
+                return true;
+            case R.id.action_add:
+                if (editFragment==null) {
+                    editFragment=new PoiEditFragment();
+                }
+                setFragment(editFragment,"edit","edit");
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -304,7 +248,12 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
         new GeofenceFromProviderAdder(this,locationclient).add();
     }
 
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
 
+        menu.findItem(R.id.action_add).setVisible(!hasVisibleEditFragment());
+        return true;
+    }
 
     @Override
     public void onDisconnected() {
@@ -316,36 +265,22 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
 
     }
 
+    private boolean hasVisibleEditFragment()  {
+        Fragment editFragment = getFragmentManager().findFragmentByTag("edit");
+        return editFragment !=null && editFragment.isVisible();
+    }
+
+    private PoiEditFragment getEditFragment()  {
+        return (PoiEditFragment) getFragmentManager().findFragmentByTag("edit");
+    }
+
     @Override
     public void onLocationChanged(Location location) {
-        hasLocation=(location!=null);
-        setButtonEnabledState();
-        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-        if (marker == null) {
-            marker = new MarkerOptions()
-                    .position(latLng)
-                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_icon))
-                    .title("Your Position");
-            CameraUpdate cu = CameraUpdateFactory.newLatLngZoom(latLng, 18f);
-            mMap.moveCamera(cu);
-
-            mMap.addMarker(marker);
-        } else {
-            marker.position(latLng);
-
+        if (hasVisibleEditFragment()) {
+            getEditFragment().setLocation(location);
         }
-
-        lastLocation = location;
-
-        setButtonEnabledState();
-
-        locationEditText.setText("lat:" + location.getLatitude() + " lon:" + location.getLongitude() + " accuracy: " + location.getAccuracy() + " alt" + location.getAltitude());
     }
 
-
-    public void setButtonEnabledState() {
-        findViewById(R.id.addButton).setEnabled(hasText && hasLocation);
-    }
 	private void maybeInitBluetoothListening()
 	{
 		acceptThread = new BluetoothListenThread(bluetoothAdapter)
