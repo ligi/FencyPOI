@@ -94,7 +94,7 @@ public class PoiEditFragment extends Fragment {
 
     private void setupSpinner() {
         typeSpinner = (Spinner) getView().findViewById(R.id.type_spinner);
-        ArrayAdapter<String> typeAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, new String[]{"Power Outlet", "Apple Tree", "Danger Zone", "Configure types"});
+        ArrayAdapter<String> typeAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, new String[]{"Unspecified","Power Outlet", "Apple Tree", "Danger Zone" });
         typeAdapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
         typeSpinner.setAdapter(typeAdapter);
 

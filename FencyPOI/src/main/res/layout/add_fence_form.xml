@@ -76,7 +76,7 @@
 
         <Spinner
                 android:layout_width="fill_parent"
-
+                android:visibility="gone"
                 android:layout_margin="@dimen/small_margin"
                 android:background="@drawable/dd"
                 android:layout_height="wrap_content"
