@@ -1,7 +1,9 @@
 package org.battlehack.fencypoi;
 
 import android.app.ListFragment;
+import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.BaseColumns;
@@ -13,7 +15,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.BaseAdapter;
+import android.widget.CursorAdapter;
 import android.widget.SimpleCursorAdapter;
+import android.widget.TextView;
 
 /**
  * Created by aschildbach on 6/8/13.
@@ -21,15 +26,45 @@ import android.widget.SimpleCursorAdapter;
 public class PoiListFragment extends ListFragment {
 
     private POIDBCursorWrapper poi;
+    private POIAdapter adapter;
 
     @Override
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         poi=new POIDBCursorWrapper(getActivity().managedQuery(POIDBContentProvider.CONTENT_URI, null, null, null, null));
-        setListAdapter(new SimpleCursorAdapter(getActivity(), android.R.layout.simple_list_item_2, poi.getCursor(), new String[]{POIDBContentProvider.KEY_NAME, POIDBContentProvider.KEY_DESCRIPTION}, new int[]{android.R.id.text1, android.R.id.text2}));
+        adapter = new POIAdapter(getActivity(), poi.getCursor(), true);
+
+        setListAdapter(adapter);
     }
 
+    private class POIAdapter extends CursorAdapter {
+
+        public POIAdapter(Context context, Cursor c, boolean autoRequery) {
+            super(context, c, autoRequery);
+        }
+
+        @Override
+        public View newView(Context context, Cursor cursor, ViewGroup viewGroup) {
+            return LayoutInflater.from(context).inflate(R.layout.poi_list_entry, null);
+        }
+
+        @Override
+        public void bindView(View view, Context context, Cursor cursor) {
+
+            TextView nameTextView=(TextView) view.findViewById(R.id.name);
+            TextView typeTextView=(TextView) view.findViewById(R.id.type);
+
+            nameTextView.setText(cursor.getString(cursor.getColumnIndexOrThrow(POIDBContentProvider.KEY_NAME)));
+            typeTextView.setText(cursor.getString(cursor.getColumnIndexOrThrow(POIDBContentProvider.KEY_TYPE)));
+
+            if (mActionMode!=null && cursor.getPosition()==mActionModeItemPosition) {
+                view.setBackgroundResource(R.drawable.background_btn);
+            } else {
+                view.setBackground(null);
+            }
+        }
+    }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_list, container,false);
@@ -47,10 +82,14 @@ public class PoiListFragment extends ListFragment {
                     return true;
                 }
                 mActionModeItemPosition = i;
-                getActivity().startActionMode(mActionModeCallback);
+
+                mActionMode=getActivity().startActionMode(mActionModeCallback);
+                adapter.notifyDataSetChanged();
                 return true;
             }
         });
+
+
         getListView().setEmptyView(getView().findViewById(android.R.id.empty));
     }
 
@@ -100,6 +139,7 @@ public class PoiListFragment extends ListFragment {
         @Override
         public void onDestroyActionMode(ActionMode mode) {
             mActionMode = null;
+            adapter.notifyDataSetChanged();
         }
     };
 }
