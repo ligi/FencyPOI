@@ -61,7 +61,7 @@ public class PoiListFragment extends ListFragment {
             if (mActionMode!=null && cursor.getPosition()==mActionModeItemPosition) {
                 view.setBackgroundResource(R.drawable.background_btn);
             } else {
-                view.setBackground(null);
+               view.setBackgroundDrawable(null);
             }
         }
     }
