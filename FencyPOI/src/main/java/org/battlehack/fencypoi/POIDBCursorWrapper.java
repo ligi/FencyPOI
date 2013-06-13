@@ -46,6 +46,6 @@ public class POIDBCursorWrapper {
     }
 
     public void setPosition(int pos) {
-        poiCursor.move(pos);
+        poiCursor.moveToPosition(pos);
     }
 }
