@@ -8,18 +8,18 @@
 
         >
 
-    <fragment
-            class="org.battlehack.fencypoi.PoiEditFragment"
+    <LinearLayout
             android:id="@+id/fragment_left"
+            android:orientation="horizontal"
             android:tag="edit"
             android:layout_width="0dip"
             android:layout_weight="1"
             android:layout_height="fill_parent"
             />
 
-    <fragment
-            class="org.battlehack.fencypoi.PoiListFragment"
+    <LinearLayout
             android:id="@+id/fragment_right"
+            android:orientation="horizontal"
             android:tag="list"
             android:layout_width="0dip"
             android:layout_weight="1"

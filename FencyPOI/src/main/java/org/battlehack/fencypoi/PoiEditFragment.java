@@ -1,9 +1,11 @@
 package org.battlehack.fencypoi;
 
-import android.app.Fragment;
+
+import android.app.Activity;
 import android.content.ContentValues;
 import android.location.Location;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -14,13 +16,16 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.MapsInitializer;
+import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.MapView;
 
 public class PoiEditFragment extends Fragment {
 
@@ -29,12 +34,15 @@ public class PoiEditFragment extends Fragment {
     private EditText descriptionEditText;
     private Spinner typeSpinner;
     private GoogleMap mMap;
+    private SupportMapFragment mMapFragment;
     private MarkerOptions marker;
 
     private boolean hasText = false;
     private boolean hasLocation = false;
     private Location lastLocation;
     private View view;
+
+    private MapView mapView;
 
     @Override
     public void onCreate(final Bundle savedInstanceState) {
@@ -44,32 +52,21 @@ public class PoiEditFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        if (view == null) {
-            view = inflater.inflate(R.layout.add_fence_form, container, false);
-        }
-        return view;
-    }
+        //if (view == null) {
+        view = inflater.inflate(R.layout.add_fence_form, container, false);
+        //}
+        locationEditText = (TextView) view.findViewById(R.id.location_edittext);
 
+        nameEditText = (EditText) view.findViewById(R.id.nameEditText);
+        descriptionEditText = (EditText) view.findViewById(R.id.descriptionEditText);
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        setupSpinner();
-
-        locationEditText = (TextView) getView().findViewById(R.id.location_edittext);
-
-        nameEditText = (EditText) getView().findViewById(R.id.nameEditText);
-        descriptionEditText = (EditText) getView().findViewById(R.id.descriptionEditText);
-
-        getView().findViewById(R.id.addButton).setEnabled(false);
-        getView().findViewById(R.id.addButton).setOnClickListener(new View.OnClickListener() {
+        view.findViewById(R.id.addButton).setEnabled(false);
+        view.findViewById(R.id.addButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 add();
             }
         });
-
-        mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
 
         nameEditText.addTextChangedListener(new TextWatcher() {
             @Override
@@ -88,18 +85,42 @@ public class PoiEditFragment extends Fragment {
 
             }
         });
+        setupSpinner(view);
+        return view;
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+
 
         updateUI();
     }
 
-    private void setupSpinner() {
-        typeSpinner = (Spinner) getView().findViewById(R.id.type_spinner);
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        try {
+            MapsInitializer.initialize(getActivity());
+        } catch (GooglePlayServicesNotAvailableException e) {
+            e.printStackTrace();
+        }
+        mapView=(MapView)getView().findViewById(R.id.map);
+        mapView.onCreate(savedInstanceState);
+        mMap=mapView.getMap();
+
+    }
+
+
+    private void setupSpinner(View view) {
+        typeSpinner = (Spinner) view.findViewById(R.id.type_spinner);
         ArrayAdapter<String> typeAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, new String[]{"Unspecified", "Power Outlet", "Apple Tree", "Danger Zone"});
         typeAdapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
         typeSpinner.setAdapter(typeAdapter);
 
 
-        Spinner alertSpinner = (Spinner) getView().findViewById(R.id.alert_spinner);
+        Spinner alertSpinner = (Spinner) view.findViewById(R.id.alert_spinner);
         ArrayAdapter<String> alertAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, new String[]{"Never", "When walking", "when biking", "when driving"});
         alertAdapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
         alertSpinner.setAdapter(alertAdapter);
@@ -161,13 +182,35 @@ public class PoiEditFragment extends Fragment {
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-        // http://stackoverflow.com/questions/14083950/duplicate-id-tag-null-or-parent-id-with-another-fragment-for-com-google-androi
-        MapFragment f = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
-        if (f != null) {
-            getFragmentManager().beginTransaction().remove(f).commit();
-        }
+    public void onLowMemory() {
+        super.onLowMemory();
+        mapView.onLowMemory();
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        mapView.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mapView.onDestroy();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        mapView.onPause();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        getActivity().invalidateOptionsMenu();
+        mapView.onResume();
+        // we need a new marker for this map
+        marker=null;
+    }
 }

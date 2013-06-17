@@ -6,9 +6,6 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Locale;
 import org.battlehack.fencypoi.geofence.GeofenceFromProviderAdder;
-import android.app.Activity;
-import android.app.Fragment;
-import android.app.FragmentTransaction;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
@@ -23,6 +20,9 @@ import android.nfc.NfcAdapter;
 import android.nfc.NfcManager;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentTransaction;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -32,7 +32,7 @@ import com.google.android.gms.location.LocationClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 
-public class MainActivity extends Activity implements GooglePlayServicesClient.ConnectionCallbacks, GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
+public class MainActivity extends FragmentActivity implements GooglePlayServicesClient.ConnectionCallbacks, GooglePlayServicesClient.OnConnectionFailedListener, LocationListener{
 
     private LocationClient locationclient;
     private Location lastLocation;
@@ -45,7 +45,8 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
 	private BluetoothListenThread acceptThread;
 	private String btMac;
 
-    private PoiEditFragment editFragment;
+    PoiListFragment poiListFragment;
+    PoiEditFragment poiEditFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +56,15 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
         setupLocationListener();
 
         setContentView(R.layout.activity_main);
+
+
+        poiListFragment = new PoiListFragment();
+        poiEditFragment = new PoiEditFragment();
+
+        setFragment(R.id.fragment_main, poiListFragment,"list",null);
+        setFragment(R.id.fragment_left, poiListFragment,"list",null);
+
+        setFragment(R.id.fragment_right, poiEditFragment,"edit",null);
 
 
         nfcManager = (NfcManager) getSystemService(Context.NFC_SERVICE);
@@ -100,9 +110,7 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
 	@Override
 	protected void onResume()
 	{
-
         super.onResume();
-        setFragment(new PoiListFragment(),"list",null);
 /*
 		if (bluetoothAdapter != null && bluetoothAdapter.isEnabled())
 		{
@@ -208,13 +216,13 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
         return true;
     }
 
-    private void setFragment(Fragment fragment,String tag,String backstack) {
-        if (findViewById(R.id.fragment_main)==null) {
+    private void setFragment(int targetRes,Fragment fragment,String tag,String backstack) {
+        if (findViewById(targetRes)==null) {
             return;
         }
 
-        FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
-        fragmentTransaction.replace(R.id.fragment_main, fragment,tag);
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.replace(targetRes, fragment,tag);
         if (backstack!=null) {
             fragmentTransaction.addToBackStack(backstack);
         }
@@ -230,10 +238,7 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
                 startActivity(intent);
                 return true;
             case R.id.action_add:
-                if (editFragment==null) {
-                    editFragment=new PoiEditFragment();
-                }
-                setFragment(editFragment,"edit","edit");
+                setFragment(R.id.fragment_main,poiEditFragment, "edit", "edit");
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -250,7 +255,6 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-
         menu.findItem(R.id.action_add).setVisible(!hasVisibleEditFragment());
         return true;
     }
@@ -266,12 +270,12 @@ public class MainActivity extends Activity implements GooglePlayServicesClient.C
     }
 
     private boolean hasVisibleEditFragment()  {
-        Fragment editFragment = getFragmentManager().findFragmentByTag("edit");
+        Fragment editFragment = getSupportFragmentManager().findFragmentByTag("edit");
         return editFragment !=null && editFragment.isVisible();
     }
 
     private PoiEditFragment getEditFragment()  {
-        return (PoiEditFragment) getFragmentManager().findFragmentByTag("edit");
+        return (PoiEditFragment) getSupportFragmentManager().findFragmentByTag("edit");
     }
 
     @Override

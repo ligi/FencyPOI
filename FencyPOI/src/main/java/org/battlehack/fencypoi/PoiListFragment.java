@@ -1,12 +1,13 @@
 package org.battlehack.fencypoi;
 
-import android.app.ListFragment;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.BaseColumns;
+import android.support.v4.app.ListFragment;
 import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -75,22 +76,22 @@ public class PoiListFragment extends ListFragment {
 
         super.onResume();
 
-        getListView().setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+        getListView().setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
-                if (mActionMode != null) {
-                    return true;
-                }
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 mActionModeItemPosition = i;
 
-                mActionMode=getActivity().startActionMode(mActionModeCallback);
+                if (mActionMode == null) {
+                    mActionMode=getActivity().startActionMode(mActionModeCallback);
+                }
+
                 adapter.notifyDataSetChanged();
-                return true;
             }
         });
 
 
         getListView().setEmptyView(getView().findViewById(android.R.id.empty));
+        getActivity().invalidateOptionsMenu();
     }
 
 
@@ -142,4 +143,10 @@ public class PoiListFragment extends ListFragment {
             adapter.notifyDataSetChanged();
         }
     };
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        activity.invalidateOptionsMenu();
+    }
 }
