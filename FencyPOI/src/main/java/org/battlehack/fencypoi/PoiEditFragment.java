@@ -36,15 +36,12 @@ public class PoiEditFragment extends Fragment {
     private EditText descriptionEditText;
     private Spinner typeSpinner;
     private GoogleMap mMap;
-    private SupportMapFragment mMapFragment;
     private Marker marker;
 
     private boolean hasText = false;
     private boolean hasLocation = false;
-    LatLng lastLatLng;// = new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude());
-
+    private LatLng lastLatLng;
     private View view;
-
     private MapView mapView;
 
     @Override
