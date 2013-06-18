@@ -39,6 +39,12 @@ public class MainActivity extends FragmentActivity implements GooglePlayServices
 
         setContentView(R.layout.activity_main);
 
+        setupFragments();
+
+        nfcSharing = new NFCSharing(this);
+    }
+
+    private void setupFragments() {
         poiListFragment = new PoiListFragment();
         poiEditFragment = new PoiEditFragment();
 
@@ -46,10 +52,6 @@ public class MainActivity extends FragmentActivity implements GooglePlayServices
         setFragment(R.id.fragment_left, poiListFragment, "list", null);
 
         setFragment(R.id.fragment_right, poiEditFragment, "edit", null);
-
-        nfcSharing = new NFCSharing(this);
-
-
     }
 
     public static NdefRecord createExternal(String domain, String type, byte[] data) {
@@ -172,6 +174,4 @@ public class MainActivity extends FragmentActivity implements GooglePlayServices
             getEditFragment().setLocation(location);
         }
     }
-
-
 }
