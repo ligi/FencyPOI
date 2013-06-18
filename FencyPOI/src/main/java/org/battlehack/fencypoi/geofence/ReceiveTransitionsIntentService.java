@@ -1,14 +1,14 @@
 package org.battlehack.fencypoi.geofence;
 
-import com.google.android.gms.location.Geofence;
-import com.google.android.gms.location.LocationClient;
-
 import android.app.IntentService;
 import android.content.Intent;
 import android.database.Cursor;
 import android.provider.BaseColumns;
 import android.text.TextUtils;
 import android.util.Log;
+
+import com.google.android.gms.location.Geofence;
+import com.google.android.gms.location.LocationClient;
 
 import org.battlehack.fencypoi.POIDBContentProvider;
 import org.battlehack.fencypoi.R;
@@ -32,8 +32,9 @@ public class ReceiveTransitionsIntentService extends IntentService {
 
     /**
      * Handles incoming intents
+     *
      * @param intent The Intent sent by Location Services. This Intent is provided
-     * to Location Services (inside a PendingIntent) when you call addGeofences()
+     *               to Location Services (inside a PendingIntent) when you call addGeofences()
      */
     @Override
     protected void onHandleIntent(Intent intent) {
@@ -44,7 +45,7 @@ public class ReceiveTransitionsIntentService extends IntentService {
             // Get the error code
             int errorCode = LocationClient.getErrorCode(intent);
             new NotificationHelper(getApplicationContext()).sendNotification("problem", "fence problem " + errorCode);
-        // If there's no error, get the transition type and create a notification
+            // If there's no error, get the transition type and create a notification
         } else {
 
             // Get the type of transition (entry or exit)
@@ -53,17 +54,17 @@ public class ReceiveTransitionsIntentService extends IntentService {
             // Test that a valid transition was reported
             if (
                     (transition == Geofence.GEOFENCE_TRANSITION_ENTER)
-                    ||
-                    (transition == Geofence.GEOFENCE_TRANSITION_EXIT)
-               ) {
+                            ||
+                            (transition == Geofence.GEOFENCE_TRANSITION_EXIT)
+                    ) {
 
                 // Post a notification
                 List<Geofence> geofences = LocationClient.getTriggeringGeofences(intent);
                 String[] geofenceIds = new String[geofences.size()];
-                for (int index = 0; index < geofences.size() ; index++) {
+                for (int index = 0; index < geofences.size(); index++) {
                     geofenceIds[index] = geofences.get(index).getRequestId();
                 }
-                String ids = TextUtils.join(",",geofenceIds);
+                String ids = TextUtils.join(",", geofenceIds);
                 String transitionType = getTransitionString(transition);
 
                 try {
@@ -71,10 +72,10 @@ public class ReceiveTransitionsIntentService extends IntentService {
                             BaseColumns._ID + " = ?",
                             new String[]{geofences.get(0).getRequestId()}, null);
                     query.moveToNext();
-                    new NotificationHelper(getApplicationContext()).sendNotification( query.getString(query.getColumnIndex(POIDBContentProvider.KEY_NAME)),
+                    new NotificationHelper(getApplicationContext()).sendNotification(query.getString(query.getColumnIndex(POIDBContentProvider.KEY_NAME)),
                             query.getString(query.getColumnIndex(POIDBContentProvider.KEY_DESCRIPTION)));
                 } catch (Exception e) {
-                    Log.w("FencyPOI","could not notify user about geofences " + ids + " because " + e.toString());
+                    Log.w("FencyPOI", "could not notify user about geofences " + ids + " because " + e.toString());
                 }
                 // Log the transition type and a message
                 Log.d("FencyPOI",
@@ -85,7 +86,7 @@ public class ReceiveTransitionsIntentService extends IntentService {
                 Log.d("FencyPOI",
                         getString(R.string.geofence_transition_notification_text));
 
-            // An invalid transition was reported
+                // An invalid transition was reported
             } else {
                 // Always log as an error
                 Log.e("FencyPOI",
@@ -96,6 +97,7 @@ public class ReceiveTransitionsIntentService extends IntentService {
 
     /**
      * Maps geofence transition types to their human-readable equivalents.
+     *
      * @param transitionType A transition type constant defined in Geofence
      * @return A String indicating the type of transition
      */

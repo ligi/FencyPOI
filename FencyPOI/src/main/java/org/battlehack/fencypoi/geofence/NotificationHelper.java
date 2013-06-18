@@ -18,7 +18,7 @@ public class NotificationHelper {
         this.ctx = ctx;
     }
 
-    void sendNotification(String title,String text) {
+    void sendNotification(String title, String text) {
 
         // Create an explicit content Intent that starts the main Activity
         Intent notificationIntent =

@@ -34,7 +34,7 @@ public class PoiListFragment extends ListFragment {
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        poiCursor =getActivity().managedQuery(POIDBContentProvider.CONTENT_URI, null, null, null, null);
+        poiCursor = getActivity().managedQuery(POIDBContentProvider.CONTENT_URI, null, null, null, null);
         adapter = new POIAdapter(getActivity(), poiCursor, true);
 
         setListAdapter(adapter);
@@ -54,22 +54,23 @@ public class PoiListFragment extends ListFragment {
         @Override
         public void bindView(View view, Context context, Cursor cursor) {
 
-            TextView nameTextView=(TextView) view.findViewById(R.id.name);
-            TextView typeTextView=(TextView) view.findViewById(R.id.type);
+            TextView nameTextView = (TextView) view.findViewById(R.id.name);
+            TextView typeTextView = (TextView) view.findViewById(R.id.type);
 
             nameTextView.setText(cursor.getString(cursor.getColumnIndexOrThrow(POIDBContentProvider.KEY_NAME)));
             typeTextView.setText(cursor.getString(cursor.getColumnIndexOrThrow(POIDBContentProvider.KEY_TYPE)));
 
-            if (mActionMode!=null && cursor.getPosition()==mActionModeItemPosition) {
+            if (mActionMode != null && cursor.getPosition() == mActionModeItemPosition) {
                 view.setBackgroundResource(R.drawable.background_btn);
             } else {
-               view.setBackgroundDrawable(null);
+                view.setBackgroundDrawable(null);
             }
         }
     }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_list, container,false);
+        return inflater.inflate(R.layout.fragment_list, container, false);
     }
 
     @Override
@@ -82,14 +83,13 @@ public class PoiListFragment extends ListFragment {
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 mActionModeItemPosition = i;
 
-                poi=new Poi(poiCursor,mActionModeItemPosition);
+                poi = new Poi(poiCursor, mActionModeItemPosition);
 
                 App.getBus().post(poi);
 
                 if (mActionMode == null) {
                     mActionMode = getActivity().startActionMode(mActionModeCallback);
                 }
-
 
 
                 adapter.notifyDataSetChanged();
@@ -100,7 +100,6 @@ public class PoiListFragment extends ListFragment {
         getListView().setEmptyView(getView().findViewById(android.R.id.empty));
         getActivity().invalidateOptionsMenu();
     }
-
 
 
     private ActionMode.Callback mActionModeCallback = new ActionMode.Callback() {
@@ -127,12 +126,12 @@ public class PoiListFragment extends ListFragment {
 
             switch (item.getItemId()) {
                 case R.id.menu_share:
-                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://maps.google.com/maps?q="+poi.getLatDbl()+","+poi.getLonDbl()+"("+poi.getName()+")"));
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://maps.google.com/maps?q=" + poi.getLatDbl() + "," + poi.getLonDbl() + "(" + poi.getName() + ")"));
                     startActivity(Intent.createChooser(intent, "Share"));
                     mode.finish();
                     return true;
                 case R.id.menu_delete:
-                    String where = BaseColumns._ID + "='" + poi.getID()  + "'";
+                    String where = BaseColumns._ID + "='" + poi.getID() + "'";
                     getActivity().getContentResolver().delete(POIDBContentProvider.CONTENT_URI, where, null);
                     mode.finish();
                     return true;

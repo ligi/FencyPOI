@@ -15,12 +15,12 @@ public class Poi {
 
     private String description;
 
-    public Poi(Cursor poiCursor,int pos) {
-        id= poiCursor.getInt(poiCursor.getColumnIndexOrThrow(BaseColumns._ID));
+    public Poi(Cursor poiCursor, int pos) {
+        id = poiCursor.getInt(poiCursor.getColumnIndexOrThrow(BaseColumns._ID));
         lat = poiCursor.getInt(poiCursor.getColumnIndexOrThrow(POIDBContentProvider.KEY_LAT));
         lon = poiCursor.getInt(poiCursor.getColumnIndexOrThrow(POIDBContentProvider.KEY_LON));
-        name=poiCursor.getString(poiCursor.getColumnIndexOrThrow(POIDBContentProvider.KEY_NAME));
-        description=poiCursor.getString(poiCursor.getColumnIndexOrThrow(POIDBContentProvider.KEY_DESCRIPTION));
+        name = poiCursor.getString(poiCursor.getColumnIndexOrThrow(POIDBContentProvider.KEY_NAME));
+        description = poiCursor.getString(poiCursor.getColumnIndexOrThrow(POIDBContentProvider.KEY_DESCRIPTION));
     }
 
     public int getID() {
@@ -33,12 +33,12 @@ public class Poi {
     }
 
     public double getLatDbl() {
-        return (double)getLat()/1E6;
+        return (double) getLat() / 1E6;
     }
 
 
     public double getLonDbl() {
-        return (double)getLon()/1E6;
+        return (double) getLon() / 1E6;
     }
 
     public int getLon() {

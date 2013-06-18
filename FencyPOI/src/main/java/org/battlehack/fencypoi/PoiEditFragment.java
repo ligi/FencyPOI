@@ -141,7 +141,7 @@ public class PoiEditFragment extends Fragment {
         mNewValues.put(POIDBContentProvider.KEY_TYPE, typeSpinner.getSelectedItem().toString());
         mNewValues.put(POIDBContentProvider.KEY_CREATOR, "undefined");
 
-        getActivity().getContentResolver().update(POIDBContentProvider.CONTENT_URI, mNewValues,null,null);
+        getActivity().getContentResolver().update(POIDBContentProvider.CONTENT_URI, mNewValues, null, null);
 
     }
 
