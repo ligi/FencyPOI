@@ -16,9 +16,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.BaseAdapter;
 import android.widget.CursorAdapter;
-import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
 /**
@@ -26,15 +24,18 @@ import android.widget.TextView;
  */
 public class PoiListFragment extends ListFragment {
 
-    private POIDBCursorWrapper poi;
+    private Poi poi;
     private POIAdapter adapter;
+    private Cursor poiCursor;
+    private ActionMode mActionMode;
+    private int mActionModeItemPosition;
 
     @Override
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        poi=new POIDBCursorWrapper(getActivity().managedQuery(POIDBContentProvider.CONTENT_URI, null, null, null, null));
-        adapter = new POIAdapter(getActivity(), poi.getCursor(), true);
+        poiCursor =getActivity().managedQuery(POIDBContentProvider.CONTENT_URI, null, null, null, null);
+        adapter = new POIAdapter(getActivity(), poiCursor, true);
 
         setListAdapter(adapter);
     }
@@ -81,9 +82,15 @@ public class PoiListFragment extends ListFragment {
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 mActionModeItemPosition = i;
 
+                poi=new Poi(poiCursor,mActionModeItemPosition);
+
+                App.getBus().post(poi);
+
                 if (mActionMode == null) {
-                    mActionMode=getActivity().startActionMode(mActionModeCallback);
+                    mActionMode = getActivity().startActionMode(mActionModeCallback);
                 }
+
+
 
                 adapter.notifyDataSetChanged();
             }
@@ -95,8 +102,6 @@ public class PoiListFragment extends ListFragment {
     }
 
 
-    private ActionMode mActionMode;
-    private int mActionModeItemPosition;
 
     private ActionMode.Callback mActionModeCallback = new ActionMode.Callback() {
 
@@ -119,7 +124,7 @@ public class PoiListFragment extends ListFragment {
         // Called when the user selects a contextual menu item
         @Override
         public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-            poi.setPosition(mActionModeItemPosition);
+
             switch (item.getItemId()) {
                 case R.id.menu_share:
                     Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://maps.google.com/maps?q="+poi.getLatDbl()+","+poi.getLonDbl()+"("+poi.getName()+")"));

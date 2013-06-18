@@ -20,12 +20,14 @@ import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.MapView;
+import com.squareup.otto.Subscribe;
 
 public class PoiEditFragment extends Fragment {
 
@@ -35,11 +37,12 @@ public class PoiEditFragment extends Fragment {
     private Spinner typeSpinner;
     private GoogleMap mMap;
     private SupportMapFragment mMapFragment;
-    private MarkerOptions marker;
+    private Marker marker;
 
     private boolean hasText = false;
     private boolean hasLocation = false;
-    private Location lastLocation;
+    LatLng lastLatLng;// = new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude());
+
     private View view;
 
     private MapView mapView;
@@ -47,7 +50,7 @@ public class PoiEditFragment extends Fragment {
     @Override
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        App.getBus().register(this);
     }
 
     @Override
@@ -106,9 +109,9 @@ public class PoiEditFragment extends Fragment {
         } catch (GooglePlayServicesNotAvailableException e) {
             e.printStackTrace();
         }
-        mapView=(MapView)getView().findViewById(R.id.map);
+        mapView = (MapView) getView().findViewById(R.id.map);
         mapView.onCreate(savedInstanceState);
-        mMap=mapView.getMap();
+        mMap = mapView.getMap();
 
     }
 
@@ -129,16 +132,16 @@ public class PoiEditFragment extends Fragment {
     public void add() {
         ContentValues mNewValues = new ContentValues();
 
-        mNewValues.put(POIDBContentProvider.KEY_LAT, (int) (1E6 * lastLocation.getLatitude()));
-        mNewValues.put(POIDBContentProvider.KEY_LON, (int) (1E6 * lastLocation.getLongitude()));
-        mNewValues.put(POIDBContentProvider.KEY_CREATED_AT, lastLocation.getTime());
+        mNewValues.put(POIDBContentProvider.KEY_LAT, (int) (1E6 * lastLatLng.latitude));
+        mNewValues.put(POIDBContentProvider.KEY_LON, (int) (1E6 * lastLatLng.longitude));
+        mNewValues.put(POIDBContentProvider.KEY_CREATED_AT, System.currentTimeMillis());
 
         mNewValues.put(POIDBContentProvider.KEY_NAME, nameEditText.getText().toString());
         mNewValues.put(POIDBContentProvider.KEY_DESCRIPTION, descriptionEditText.getText().toString());
         mNewValues.put(POIDBContentProvider.KEY_TYPE, typeSpinner.getSelectedItem().toString());
         mNewValues.put(POIDBContentProvider.KEY_CREATOR, "undefined");
 
-        getActivity().getContentResolver().insert(POIDBContentProvider.CONTENT_URI, mNewValues);
+        getActivity().getContentResolver().update(POIDBContentProvider.CONTENT_URI, mNewValues,null,null);
 
     }
 
@@ -156,28 +159,30 @@ public class PoiEditFragment extends Fragment {
         addButton.setEnabled(hasText && hasLocation);
 
         if (hasLocation) {
-            locationEditText.setText("lat:" + lastLocation.getLatitude() + " lon:" + lastLocation.getLongitude() + " accuracy: " + lastLocation.getAccuracy() + " alt" + lastLocation.getAltitude());
-            LatLng latLng = new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude());
-            if (marker == null) {
-                marker = new MarkerOptions()
-                        .position(latLng)
-                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_icon))
-                        .title("Your Position");
-                CameraUpdate cu = CameraUpdateFactory.newLatLngZoom(latLng, 18f);
-                mMap.moveCamera(cu);
+            locationEditText.setText("lat:" + lastLatLng.latitude + " lon:" + lastLatLng.longitude);
 
-                mMap.addMarker(marker);
-            } else {
-                marker.position(latLng);
+            if (marker != null) {
+                marker.remove();
 
             }
+            marker = mMap.addMarker(new MarkerOptions()
+                    .position(lastLatLng)
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_icon))
+                    .title("Your Position"));
+
+            CameraUpdate cu = CameraUpdateFactory.newLatLngZoom(lastLatLng, 18f);
+            mMap.moveCamera(cu);
+
         }
 
     }
 
     public void setLocation(Location location) {
+        if (hasLocation) {
+            return;
+        }
         hasLocation = (location != null);
-        lastLocation = location;
+        lastLatLng = new LatLng(location.getLatitude(), location.getLongitude());
         updateUI();
     }
 
@@ -211,6 +216,14 @@ public class PoiEditFragment extends Fragment {
         getActivity().invalidateOptionsMenu();
         mapView.onResume();
         // we need a new marker for this map
-        marker=null;
+        marker = null;
+    }
+
+    @Subscribe
+    public void onPoiChanged(Poi poi) {
+        nameEditText.setText(poi.getName());
+        descriptionEditText.setText(poi.getDescription());
+        lastLatLng = new LatLng(poi.getLatDbl(), poi.getLonDbl());
+        updateUI();
     }
 }
