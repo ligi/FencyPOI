@@ -21,7 +21,7 @@ this app is licensed <a href="http://gplv3.fsf.org/">GPLv3</a>
 Authors
 =======
 
-Andreas Schildbach ( Code )
-Evgeny Buryat Onutchin ( Design )
-Mister Ligi ( Code )
-Philip Stewart ( Code )
+ * Andreas Schildbach ( Code )
+ * Evgeny Buryat Onutchin ( Design )
+ * Mister Ligi ( Code )
+ * Philip Stewart ( Code )
