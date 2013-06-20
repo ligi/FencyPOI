@@ -6,6 +6,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.provider.BaseColumns;
 
 /**
  * Created by aschildbach on 6/8/13.
@@ -46,7 +47,11 @@ public class POIDBContentProvider extends ContentProvider {
     }
 
     @Override
-    public int update(final Uri uri, final ContentValues values, final String selection, final String[] selectionArgs) {
+    public int update(final Uri uri, final ContentValues values,  String selection, String[] selectionArgs) {
+        if (ContentUris.parseId(uri)>0) {
+            selection= BaseColumns._ID+"=?";
+            selectionArgs=new String[] { String.valueOf(ContentUris.parseId(uri)) };
+        }
         final int count = helper.getWritableDatabase().update(TABLE_NAME, values, selection, selectionArgs);
 
         if (count > 0)
@@ -56,7 +61,11 @@ public class POIDBContentProvider extends ContentProvider {
     }
 
     @Override
-    public int delete(final Uri uri, final String selection, final String[] selectionArgs) {
+    public int delete(final Uri uri,  String selection,  String[] selectionArgs) {
+        if (ContentUris.parseId(uri)>0) {
+            selection= BaseColumns._ID+"=?";
+            selectionArgs=new String[] { String.valueOf(ContentUris.parseId(uri)) };
+        }
 
         final int count = helper.getWritableDatabase().delete(TABLE_NAME, selection, selectionArgs);
 

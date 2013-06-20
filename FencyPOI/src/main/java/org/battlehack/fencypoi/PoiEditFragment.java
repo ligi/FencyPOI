@@ -22,12 +22,14 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
-import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.squareup.otto.Produce;
 import com.squareup.otto.Subscribe;
+
+import org.ligi.androidhelper.AndroidHelper;
 
 public class PoiEditFragment extends Fragment {
 
@@ -43,6 +45,11 @@ public class PoiEditFragment extends Fragment {
     private LatLng lastLatLng;
     private View view;
     private MapView mapView;
+    private Poi actPoi;
+
+    public PoiEditFragment() {
+        this.actPoi = new Poi();
+    }
 
     @Override
     public void onCreate(final Bundle savedInstanceState) {
@@ -76,12 +83,15 @@ public class PoiEditFragment extends Fragment {
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i2, int i3) {
-                hasText = charSequence.length() > 0;
-                updateUI();
             }
 
             @Override
             public void afterTextChanged(Editable editable) {
+                actPoi.setName(editable.toString());
+                if (hasText != editable.length() > 0) { // must have change - prevent stackoveflow
+                    hasText = editable.length() > 0;
+                    updateUI();
+                }
 
             }
         });
@@ -92,8 +102,6 @@ public class PoiEditFragment extends Fragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-
-
         updateUI();
     }
 
@@ -138,14 +146,26 @@ public class PoiEditFragment extends Fragment {
         mNewValues.put(POIDBContentProvider.KEY_TYPE, typeSpinner.getSelectedItem().toString());
         mNewValues.put(POIDBContentProvider.KEY_CREATOR, "undefined");
 
-        getActivity().getContentResolver().update(POIDBContentProvider.CONTENT_URI, mNewValues, null, null);
+        if (actPoi.getUri()==null) {
+            actPoi.setUri(getActivity().getContentResolver().insert(POIDBContentProvider.CONTENT_URI, mNewValues)); //, null, null);
+
+        } else {
+            getActivity().getContentResolver().update(actPoi.getUri(), mNewValues, null, null);
+        }
 
     }
+
 
     public void updateUI() {
         if (getView() == null) {
             return;
         }
+
+        AndroidHelper.at(nameEditText).changeTextIfNeeded(actPoi.getName());
+        AndroidHelper.at(descriptionEditText).changeTextIfNeeded(actPoi.getDescription());
+
+        lastLatLng = new LatLng(actPoi.getLatDbl(), actPoi.getLonDbl());
+
 
         View addButton = getView().findViewById(R.id.addButton);
 
@@ -218,9 +238,7 @@ public class PoiEditFragment extends Fragment {
 
     @Subscribe
     public void onPoiChanged(Poi poi) {
-        nameEditText.setText(poi.getName());
-        descriptionEditText.setText(poi.getDescription());
-        lastLatLng = new LatLng(poi.getLatDbl(), poi.getLonDbl());
+        actPoi=poi;
         updateUI();
     }
 }

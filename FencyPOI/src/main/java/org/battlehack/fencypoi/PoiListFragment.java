@@ -83,7 +83,7 @@ public class PoiListFragment extends ListFragment {
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 mActionModeItemPosition = i;
 
-                poi = new Poi(poiCursor, mActionModeItemPosition);
+                poi = Poi2CursorConverter.fromCursor(poiCursor, mActionModeItemPosition);
 
                 App.getBus().post(poi);
 
@@ -110,6 +110,7 @@ public class PoiListFragment extends ListFragment {
             // Inflate a menu resource providing context menu items
             MenuInflater inflater = mode.getMenuInflater();
             inflater.inflate(R.menu.list_action_mode, menu);
+
             return true;
         }
 
@@ -131,8 +132,10 @@ public class PoiListFragment extends ListFragment {
                     mode.finish();
                     return true;
                 case R.id.menu_delete:
-                    String where = BaseColumns._ID + "='" + poi.getID() + "'";
+                    /*String where = BaseColumns._ID + "='" + poi.getID() + "'";
                     getActivity().getContentResolver().delete(POIDBContentProvider.CONTENT_URI, where, null);
+                    */
+                    getActivity().getContentResolver().delete(poi.getUri(), null, null);
                     mode.finish();
                     return true;
                 default:
