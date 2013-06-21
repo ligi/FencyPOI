@@ -12,7 +12,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -30,7 +29,6 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.squareup.otto.Subscribe;
 
 import org.ligi.androidhelper.AndroidHelper;
-import org.ligi.androidhelper.views.ActivityFinishOnViewClickListener;
 
 public class PoiEditFragment extends Fragment {
 
@@ -42,11 +40,12 @@ public class PoiEditFragment extends Fragment {
     private Marker marker;
 
     private boolean hasText = false;
-    private boolean hasLocation = false;
-    private LatLng lastLatLng;
+    private LatLng markerLatLng;
     private View view;
     private MapView mapView;
     private Poi actPoi;
+
+    private Location lastGPSLocation;
 
     public PoiEditFragment() {
         this.actPoi = new Poi();
@@ -68,18 +67,21 @@ public class PoiEditFragment extends Fragment {
         nameEditText = (EditText) view.findViewById(R.id.nameEditText);
         descriptionEditText = (EditText) view.findViewById(R.id.descriptionEditText);
 
-        view.findViewById(R.id.switchLayerButton).setOnClickListener(new View.OnClickListener() {
+        view.findViewById(R.id.setLocationButton).setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View view) {
-
+                if (hasGPSLocation()) {
+                    markerLatLng = new LatLng(lastGPSLocation.getLatitude(), lastGPSLocation.getLongitude());
+                    updateUI();
+                }
             }
         });
 
         view.findViewById(R.id.switchLayerButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                switchLayer();
+                switchMapType();
             }
         });
 
@@ -115,7 +117,11 @@ public class PoiEditFragment extends Fragment {
         return view;
     }
 
-    private void switchLayer() {
+    private boolean hasGPSLocation() {
+        return lastGPSLocation!=null;
+    }
+
+    private void switchMapType() {
         if (mMap.getMapType() == GoogleMap.MAP_TYPE_SATELLITE) {
             mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
         } else {
@@ -161,8 +167,8 @@ public class PoiEditFragment extends Fragment {
     public void add() {
         ContentValues mNewValues = new ContentValues();
 
-        mNewValues.put(POIDBContentProvider.KEY_LAT, (int) (1E6 * lastLatLng.latitude));
-        mNewValues.put(POIDBContentProvider.KEY_LON, (int) (1E6 * lastLatLng.longitude));
+        mNewValues.put(POIDBContentProvider.KEY_LAT, (int) (1E6 * markerLatLng.latitude));
+        mNewValues.put(POIDBContentProvider.KEY_LON, (int) (1E6 * markerLatLng.longitude));
         mNewValues.put(POIDBContentProvider.KEY_CREATED_AT, System.currentTimeMillis());
 
         mNewValues.put(POIDBContentProvider.KEY_NAME, nameEditText.getText().toString());
@@ -185,10 +191,13 @@ public class PoiEditFragment extends Fragment {
             return;
         }
 
+        view.findViewById(R.id.setLocationButton).setEnabled(hasGPSLocation());
+
         AndroidHelper.at(nameEditText).changeTextIfNeeded(actPoi.getName());
         AndroidHelper.at(descriptionEditText).changeTextIfNeeded(actPoi.getDescription());
 
-        lastLatLng = new LatLng(actPoi.getLatDbl(), actPoi.getLonDbl());
+        // TODO check when to set from POI
+        markerLatLng = new LatLng(actPoi.getLatDbl(), actPoi.getLonDbl());
 
 
         View addButton = getView().findViewById(R.id.addButton);
@@ -197,33 +206,33 @@ public class PoiEditFragment extends Fragment {
             return;
         }
 
-        addButton.setEnabled(hasText && hasLocation);
+        addButton.setEnabled(hasText && hasMarkerLocation());
 
-        if (hasLocation) {
-            locationEditText.setText("lat:" + lastLatLng.latitude + " lon:" + lastLatLng.longitude);
+        if (hasMarkerLocation()) {
+            locationEditText.setText("lat:" + markerLatLng.latitude + " lon:" + markerLatLng.longitude);
 
             if (marker != null) {
                 marker.remove();
 
             }
             marker = mMap.addMarker(new MarkerOptions()
-                    .position(lastLatLng)
+                    .position(markerLatLng)
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_icon))
                     .title("Your Position"));
 
-            CameraUpdate cu = CameraUpdateFactory.newLatLngZoom(lastLatLng, 18f);
+            CameraUpdate cu = CameraUpdateFactory.newLatLngZoom(markerLatLng, 18f);
             mMap.moveCamera(cu);
 
         }
 
     }
 
-    public void setLocation(Location location) {
-        if (hasLocation) {
-            return;
-        }
-        hasLocation = (location != null);
-        lastLatLng = new LatLng(location.getLatitude(), location.getLongitude());
+    private boolean hasMarkerLocation() {
+        return markerLatLng!=null;
+    }
+
+    public void setGPSLocation(Location location) {
+        lastGPSLocation = location;
         updateUI();
     }
 

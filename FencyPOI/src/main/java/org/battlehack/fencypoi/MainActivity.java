@@ -2,7 +2,6 @@ package org.battlehack.fencypoi;
 
 import android.content.Intent;
 import android.location.Location;
-import android.nfc.NdefRecord;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -17,9 +16,6 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 
 import org.battlehack.fencypoi.geofence.GeofenceFromProviderAdder;
-
-import java.nio.charset.Charset;
-import java.util.Locale;
 
 public class MainActivity extends FragmentActivity implements GooglePlayServicesClient.ConnectionCallbacks, GooglePlayServicesClient.OnConnectionFailedListener, LocationListener {
 
@@ -149,8 +145,9 @@ public class MainActivity extends FragmentActivity implements GooglePlayServices
 
     @Override
     public void onLocationChanged(Location location) {
-        if (hasVisibleEditFragment()) {
-            getEditFragment().setLocation(location);
+        // TODO use otto bus with producer cache
+        if (getEditFragment()!=null) {
+            getEditFragment().setGPSLocation(location);
         }
     }
 }
