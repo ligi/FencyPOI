@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -26,10 +27,10 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.squareup.otto.Produce;
 import com.squareup.otto.Subscribe;
 
 import org.ligi.androidhelper.AndroidHelper;
+import org.ligi.androidhelper.views.ActivityFinishOnViewClickListener;
 
 public class PoiEditFragment extends Fragment {
 
@@ -67,6 +68,21 @@ public class PoiEditFragment extends Fragment {
         nameEditText = (EditText) view.findViewById(R.id.nameEditText);
         descriptionEditText = (EditText) view.findViewById(R.id.descriptionEditText);
 
+        view.findViewById(R.id.switchLayerButton).setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+
+        view.findViewById(R.id.switchLayerButton).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                switchLayer();
+            }
+        });
+
         view.findViewById(R.id.addButton).setEnabled(false);
         view.findViewById(R.id.addButton).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -97,6 +113,14 @@ public class PoiEditFragment extends Fragment {
         });
         setupSpinner(view);
         return view;
+    }
+
+    private void switchLayer() {
+        if (mMap.getMapType() == GoogleMap.MAP_TYPE_SATELLITE) {
+            mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        } else {
+            mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+        }
     }
 
     @Override
@@ -146,7 +170,7 @@ public class PoiEditFragment extends Fragment {
         mNewValues.put(POIDBContentProvider.KEY_TYPE, typeSpinner.getSelectedItem().toString());
         mNewValues.put(POIDBContentProvider.KEY_CREATOR, "undefined");
 
-        if (actPoi.getUri()==null) {
+        if (actPoi.getUri() == null) {
             actPoi.setUri(getActivity().getContentResolver().insert(POIDBContentProvider.CONTENT_URI, mNewValues)); //, null, null);
 
         } else {
@@ -238,7 +262,7 @@ public class PoiEditFragment extends Fragment {
 
     @Subscribe
     public void onPoiChanged(Poi poi) {
-        actPoi=poi;
+        actPoi = poi;
         updateUI();
     }
 }
