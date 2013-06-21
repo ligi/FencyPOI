@@ -54,27 +54,6 @@ public class MainActivity extends FragmentActivity implements GooglePlayServices
         setFragment(R.id.fragment_right, poiEditFragment, "edit", null);
     }
 
-    public static NdefRecord createExternal(String domain, String type, byte[] data) {
-        if (domain == null) throw new NullPointerException("domain is null");
-        if (type == null) throw new NullPointerException("type is null");
-
-        domain = domain.trim().toLowerCase(Locale.US);
-        type = type.trim().toLowerCase(Locale.US);
-
-        if (domain.length() == 0) throw new IllegalArgumentException("domain is empty");
-        if (type.length() == 0) throw new IllegalArgumentException("type is empty");
-
-        final Charset utf8 = Charset.forName("UTF8");
-        byte[] byteDomain = domain.getBytes(utf8);
-        byte[] byteType = type.getBytes(utf8);
-        byte[] b = new byte[byteDomain.length + 1 + byteType.length];
-        System.arraycopy(byteDomain, 0, b, 0, byteDomain.length);
-        b[byteDomain.length] = ':';
-        System.arraycopy(byteType, 0, b, byteDomain.length + 1, byteType.length);
-
-        return new NdefRecord(NdefRecord.TNF_EXTERNAL_TYPE, b, null, data);
-    }
-
     @Override
     protected void onResume() {
         super.onResume();

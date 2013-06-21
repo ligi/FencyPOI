@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.nfc.NdefMessage;
+import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.nfc.NfcManager;
 import android.os.Parcelable;
@@ -18,6 +19,8 @@ import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.Locale;
 
 /**
  * move the code from the MainActivity
@@ -164,6 +167,28 @@ public class NFCSharing {
             }
         };
     }
+
+    public static NdefRecord createExternal(String domain, String type, byte[] data) {
+        if (domain == null) throw new NullPointerException("domain is null");
+        if (type == null) throw new NullPointerException("type is null");
+
+        domain = domain.trim().toLowerCase(Locale.US);
+        type = type.trim().toLowerCase(Locale.US);
+
+        if (domain.length() == 0) throw new IllegalArgumentException("domain is empty");
+        if (type.length() == 0) throw new IllegalArgumentException("type is empty");
+
+        final Charset utf8 = Charset.forName("UTF8");
+        byte[] byteDomain = domain.getBytes(utf8);
+        byte[] byteType = type.getBytes(utf8);
+        byte[] b = new byte[byteDomain.length + 1 + byteType.length];
+        System.arraycopy(byteDomain, 0, b, 0, byteDomain.length);
+        b[byteDomain.length] = ':';
+        System.arraycopy(byteType, 0, b, byteDomain.length + 1, byteType.length);
+
+        return new NdefRecord(NdefRecord.TNF_EXTERNAL_TYPE, b, null, data);
+    }
+
 
 
 }
