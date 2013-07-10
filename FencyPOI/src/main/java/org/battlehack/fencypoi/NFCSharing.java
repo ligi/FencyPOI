@@ -1,16 +1,19 @@
 package org.battlehack.fencypoi;
 
 import android.app.Activity;
+import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
+import android.nfc.NfcEvent;
 import android.nfc.NfcManager;
 import android.os.Parcelable;
 import android.widget.Toast;
@@ -38,24 +41,23 @@ public class NFCSharing {
 
     private Activity ctx;
 
-    public NFCSharing(Activity ctx) {
+    public NFCSharing(final Activity ctx) {
         this.ctx = ctx;
         nfcManager = (NfcManager) ctx.getSystemService(Context.NFC_SERVICE);
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         btMac = bluetoothAdapter.getAddress();
 
-/*		nfcAdapter = nfcManager.getDefaultAdapter();
-        nfcAdapter.setNdefPushMessageCallback(new CreateNdefMessageCallback()
+		nfcAdapter = nfcManager.getDefaultAdapter();
+        nfcAdapter.setNdefPushMessageCallback(new NfcAdapter.CreateNdefMessageCallback()
 		{
 			@Override
 			public NdefMessage createNdefMessage(final NfcEvent event)
 			{
-					final NdefRecord record = createExternal(getPackageName(), "pois", btMac.getBytes());
-					final NdefRecord appRecord = NdefRecord.createApplicationRecord(getPackageName());
+					final NdefRecord record = createExternal(ctx.getPackageName(), "pois", btMac.getBytes());
+					final NdefRecord appRecord = NdefRecord.createApplicationRecord(ctx.getPackageName());
 					return new NdefMessage(new NdefRecord[] { record, appRecord });
 			}
-		}, this, new Activity[]{});
-*/
+		}, ctx, new Activity[]{});
 
 
     }
@@ -111,27 +113,26 @@ public class NFCSharing {
     }
 
     protected void onResume() {
-     /*
+
         if (bluetoothAdapter != null && bluetoothAdapter.isEnabled())
 		{
 			maybeInitBluetoothListening();
 
-			final PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
-					new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
+			final PendingIntent pendingIntent = PendingIntent.getActivity(ctx, 0,
+					new Intent(ctx, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
 			final IntentFilter intentFilter = new IntentFilter(NfcAdapter.ACTION_NDEF_DISCOVERED);
 
-			nfcAdapter.enableForegroundDispatch(this, pendingIntent, new IntentFilter[] { intentFilter }, null);
+			nfcAdapter.enableForegroundDispatch(ctx, pendingIntent, new IntentFilter[] { intentFilter }, null);
 		}
-		*/
     }
 
     public void onPause() {
 
-		/*nfcAdapter.disableForegroundDispatch(this);
+		nfcAdapter.disableForegroundDispatch(ctx);
 
 		if (acceptThread != null)
 			acceptThread.stopAccepting();
-     */
+
     }
 
     private void maybeInitBluetoothListening() {

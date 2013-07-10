@@ -196,9 +196,6 @@ public class PoiEditFragment extends Fragment {
         AndroidHelper.at(nameEditText).changeTextIfNeeded(actPoi.getName());
         AndroidHelper.at(descriptionEditText).changeTextIfNeeded(actPoi.getDescription());
 
-        // TODO check when to set from POI
-        markerLatLng = new LatLng(actPoi.getLatDbl(), actPoi.getLonDbl());
-
 
         View addButton = getView().findViewById(R.id.addButton);
 
@@ -272,6 +269,9 @@ public class PoiEditFragment extends Fragment {
     @Subscribe
     public void onPoiChanged(Poi poi) {
         actPoi = poi;
+
+        markerLatLng = new LatLng(actPoi.getLatDbl(), actPoi.getLonDbl());
+
         updateUI();
     }
 }

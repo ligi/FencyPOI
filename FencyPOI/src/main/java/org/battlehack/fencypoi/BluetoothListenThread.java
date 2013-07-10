@@ -12,21 +12,23 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public abstract class BluetoothListenThread extends Thread {
     public static final UUID BLUETOOTH_UUID = UUID.fromString("3357A7BB-762D-464A-8D9A-DCA592D57D5B");
 
-    private final BluetoothServerSocket listeningSocket;
+    private BluetoothServerSocket listeningSocket;
     private final AtomicBoolean running = new AtomicBoolean(true);
+    final BluetoothAdapter adapter;
 
-    public BluetoothListenThread(final BluetoothAdapter adapter) {
+    public BluetoothListenThread(BluetoothAdapter adapter) {
+        this.adapter = adapter;
+    }
+
+    @Override
+    public void run() {
         try {
-            this.listeningSocket = adapter.listenUsingInsecureRfcommWithServiceRecord("FencyPOI", BLUETOOTH_UUID);
+            this.listeningSocket = adapter.listenUsingInsecureRfcommWithServiceRecord("rfcomm", BLUETOOTH_UUID);
 
             start();
         } catch (final IOException x) {
             throw new RuntimeException(x);
         }
-    }
-
-    @Override
-    public void run() {
         System.out.println("=== BTTX Thread run");
         while (running.get()) {
             BluetoothSocket socket = null;
