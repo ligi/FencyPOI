@@ -64,6 +64,9 @@ public class NFCSharing {
 
     public void onNewIntent(final Intent intent) {
         final Parcelable[] msgs = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
+		if (msgs == null)
+			return;
+
         final NdefMessage ndef = (NdefMessage) msgs[0];
 
         final String sendBtMac = new String(ndef.getRecords()[0].getPayload());
