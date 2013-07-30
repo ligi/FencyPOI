@@ -1,3 +1,5 @@
+[![Build Status](https://ligi.ci.cloudbees.com/job/FencyPOI/badge/icon)](https://ligi.ci.cloudbees.com/job/FencyPOI/)
+
 What is it?
 ===========
 
